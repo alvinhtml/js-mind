@@ -1,0 +1,43 @@
+{
+  "name": "simple-chart",
+  "version": "1.0.0",
+  "description": "A simple chart Library",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "rm -rf ./dist && webpack --mode development",
+    "start": "webpack-dev-server",
+    "lint": "npx eslint src/**/*.tsx",
+    "build": "rm -rf ./dist && webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alvinhtml/simple-chart.git"
+  },
+  "keywords": [
+    "chart"
+  ],
+  "author": "alvinhtml@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alvinhtml/simple-chart/issues"
+  },
+  "homepage": "https://github.com/alvinhtml/simple-chart#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "@typescript-eslint/parser": "^4.29.1",
+    "eslint": "^7.32.0",
+    "file-loader": "^6.2.0",
+    "html-minifier": "^4.0.0",
+    "html-webpack-plugin": "^5.3.2",
+    "ts-loader": "^9.2.5",
+    "typescript": "^4.3.5",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.50.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "dependencies": {
+    "hidpi-canvas": "^1.0.10"
+  }
+}
