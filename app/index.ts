@@ -1,3 +1,3 @@
-import { Mind } from '~/chart/charts'
+import { Mind } from '~/mind/mind'
 
 export default Mind;
