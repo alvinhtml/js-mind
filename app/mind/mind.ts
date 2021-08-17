@@ -1,4 +1,5 @@
 import Stage from "./stage"
+import Adder from "./adder"
 import { Rect } from "./node/index"
 
 export class Mind {
@@ -13,13 +14,13 @@ export class Mind {
 
   data: any = {}
 
-  tip = null
+  adder: Adder
 
   constructor(element: HTMLDivElement | null) {
     if (element) {
-      this.stage2d = new Stage(element);
-      this.stage2d.translateX = this.stage2d.width / 2
-      this.stage2d.translateY = this.stage2d.height / 2
+      this.stage2d = new Stage(element)
+      this.stage2d.translateX = (this.stage2d.width / 2) - 60
+      this.stage2d.translateY = (this.stage2d.height / 2) - 20
     }
   }
 
@@ -52,7 +53,6 @@ export class Mind {
       // }
     }
 
-
     this.render()
   }
 
@@ -62,17 +62,15 @@ export class Mind {
     console.log("this.nodes", this.nodes);
     scene.paint(() => {
 
-
-      scene.context.fillStyle = "rgba(0,0,0,0.2)"
-      scene.context.strokeStyle = "rgba(0,0,0,1)"
-
       this.nodes.forEach((node) => {
         node.paint(scene.context)
       })
 
-
-
     })
+  }
+
+  initAdder() {
+    this.adder = new Adder(this.stage2d.container)
   }
 
   // 绑定事件

@@ -38,7 +38,6 @@ export default class Rect extends Node {
 
   }
   paint(context: CanvasRenderingContext2D) {
-    console.log("this,width", this.width);
     if (this.width < 2 * this.radius) {
       this.radius = this.width / 2;
     }
@@ -56,6 +55,9 @@ export default class Rect extends Node {
 
     // context.rect(this.x, this.y, this.width, this.height);
     context.closePath()
+
+    context.fillStyle = this.areaPattern
+    context.strokeStyle = this.pattern
 
     context.fill()
     context.stroke()

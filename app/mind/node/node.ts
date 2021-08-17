@@ -1,4 +1,5 @@
 import Stage from "../stage"
+import { lighten, darken, alpha } from '../../utils/tool'
 
 import { CLICK, MOUSEUP, MOUSEDOWN, MOUSEMOVE, MOUSESCROLL } from '../../constants'
 
@@ -23,6 +24,10 @@ interface Indexed {
 
 type Values<T> = T[keyof T]
 
+const pattern = '#2185d0'
+const mouseOverPattern = alpha('#2185d0', 0.1)
+const areaPattern = alpha('#2185d0', 0.2)
+
 export default class Node {
   stage2d: Stage
   chart2d: any
@@ -39,6 +44,14 @@ export default class Node {
   width: number = 120
 
   height: number = 40
+
+  //填充颜色或图案
+  pattern = pattern
+
+  //填充颜色或图案 mouseover
+  mouseOverPattern = mouseOverPattern
+
+  areaPattern = areaPattern
 
   //临时禁用
   disabled: boolean = false
