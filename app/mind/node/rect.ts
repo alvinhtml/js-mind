@@ -35,7 +35,9 @@ export default class Rect extends Node {
   }
 
   paintTitle(context: CanvasRenderingContext2D) {
-
+    //绘制名称
+    context.fillText(this.name, this.x + this.width / 2, this.y + this.height / 2)
+    context.fillRect(this.x, this.y, 2, 2)
   }
   paint(context: CanvasRenderingContext2D) {
     if (this.width < 2 * this.radius) {
@@ -55,6 +57,13 @@ export default class Rect extends Node {
 
     // context.rect(this.x, this.y, this.width, this.height);
     context.closePath()
+
+    if (context.isPointInPath(this.stage2d.mouseX, this.stage2d.mouseY)) {
+      context.fillStyle = this.mouseOverPattern
+      this.triggerEvent()
+    } else {
+      context.fillStyle = this.pattern
+    }
 
     context.fillStyle = this.areaPattern
     context.strokeStyle = this.pattern

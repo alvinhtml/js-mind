@@ -13,41 +13,43 @@ let lastIDOMHighResTimeStamp = 0;
 export default class Stage {
 
   // 容器, canvas 元素的 parent
-  public container: HTMLDivElement;
+  public container: HTMLDivElement
 
   // 舞台的宽和高，既是容器的宽和高，实际也是 canvas 的宽和高
-  public width: number;
-  public height: number;
+  public width: number
+  public height: number
 
   // 场景
-  public scenes: Array<Scene> = [];
+  public scenes: Array<Scene> = []
 
 
   // 获取舞台相对于当前视窗的偏移
-  public offsetX: number;
-  public offsetY: number;
+  public offsetX: number
+  public offsetY: number
 
   // 当前舞台的缩放
   public scale = 1
 
   //当前舞台的偏移
-  public translateX: number = 0;
-  public translateY: number = 0;
+  public translateX: number = 0
+  public translateY: number = 0
+
+  public drawing: boolean = false
 
   // 设备像素比
-  public pixelRatio = 1; //pixelRatio;
+  public pixelRatio = 1 //pixelRatio;
 
   // 鼠标 X
-  public mouseX: number = 0;
+  public mouseX: number = 0
 
   // 鼠标 Y
-  public mouseY: number = 0;
+  public mouseY: number = 0
 
   // 鼠标相对于页面 X
-  public pageX: number = 0;
+  public pageX: number = 0
 
   // 鼠标相对于页面 Y
-  public pageY: number = 0;
+  public pageY: number = 0
 
   // 当前帧距离上一帧的时间间隔
   public interval: number = 0
@@ -58,7 +60,6 @@ export default class Stage {
   public mouseupPointQueue = new Queue<Point>()
   public mousedownPointQueue = new Queue<Point>()
   public mousemovePointQueue = new Queue<Point>()
-  // public mouseoutPointQueue = new Queue<Point>()
 
   //事件列表
   public events: Array<Event2d>
@@ -89,30 +90,58 @@ export default class Stage {
     })
 
     this.requestAnimationFrame()
+
+
+    let lastX = 0
+    let lastY = 0
+
+    this.addEventListener('mousedown', (e: any) => {
+      if (!e.target) {
+        this.drawing = true
+        lastX = e.mouseX
+        lastY = e.mouseY
+      }
+      console.log("e, this.drawing", e, this.drawing);
+    })
+
+    this.addEventListener('mouseup', (e: any) => {
+      if (!e.target) {
+        this.drawing = false
+      }
+      console.log("e, this.drawing", e, this.drawing);
+    })
+
+    this.addEventListener('mousemove', (e: any) => {
+      console.log("e", e);
+      if (this.drawing) {
+        this.translateX = this.translateX + (e.mouseX - lastX)
+        this.translateY = this.translateY + (e.mouseY - lastY)
+      }
+    })
   }
 
   //初始化事件监听
   initEventListener() {
     //添加事件监听
     document.addEventListener("mouseup", (e: MouseEvent) => {
-
+      this.mouseupPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
     }, false);
 
     this.container.addEventListener("mousedown", (e: MouseEvent) => {
-
+      this.mousedownPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
     }, false)
 
     this.container.addEventListener("click", (e: MouseEvent) => {
-      this.clickPointQueue.enqueue(new Point(this.mouseX, this.mouseY));
+      this.clickPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
     }, false);
 
     this.container.addEventListener("mousemove", (e: MouseEvent) => {
       this.pageX = e.pageX;
       this.pageY = e.pageY;
-      this.mouseX = (e.pageX - this.offsetX) * this.pixelRatio;
-      this.mouseY = (e.pageY - this.offsetY) * this.pixelRatio;
+      this.mouseX = (e.pageX - this.offsetX) * this.pixelRatio
+      this.mouseY = (e.pageY - this.offsetY) * this.pixelRatio
 
-      this.mousemovePointQueue.enqueue(new Point(this.mouseX, this.mouseY));
+      this.mousemovePointQueue.enqueue(new Point(this.mouseX, this.mouseY))
     }, false);
 
     //缩放事件
@@ -177,9 +206,37 @@ export default class Stage {
   }
 
   clearEventPoint() {
-    this.clickPointQueue.clear()
-    this.mouseupPointQueue.clear()
-    this.mousedownPointQueue.clear()
+    if (!this.mouseupPointQueue.isEmpty()) {
+      this.events.forEach((event: Event2d) => {
+        if (event.eventType === MOUSEUP) {
+          event.callback({
+            mouseX: Math.round(this.mouseX / this.pixelRatio),
+            mouseY: Math.round(this.mouseY / this.pixelRatio),
+            pageX: this.pageX,
+            pageY: this.pageY,
+            target: null
+          })
+        }
+      })
+
+      this.mouseupPointQueue.clear()
+    }
+
+    if (!this.mousedownPointQueue.isEmpty()) {
+      this.events.forEach((event: Event2d) => {
+        if (event.eventType === MOUSEDOWN) {
+          event.callback({
+            mouseX: Math.round(this.mouseX / this.pixelRatio),
+            mouseY: Math.round(this.mouseY / this.pixelRatio),
+            pageX: this.pageX,
+            pageY: this.pageY,
+            target: null
+          })
+        }
+      })
+
+      this.mousedownPointQueue.clear()
+    }
 
     if (!this.mousemovePointQueue.isEmpty()) {
       this.events.forEach((event: Event2d) => {
@@ -195,6 +252,22 @@ export default class Stage {
       })
 
       this.mousemovePointQueue.clear()
+    }
+
+    if (!this.clickPointQueue.isEmpty()) {
+      this.events.forEach((event: Event2d) => {
+        if (event.eventType === CLICK) {
+          event.callback({
+            mouseX: Math.round(this.mouseX / this.pixelRatio),
+            mouseY: Math.round(this.mouseY / this.pixelRatio),
+            pageX: this.pageX,
+            pageY: this.pageY,
+            target: null
+          })
+        }
+      })
+
+      this.clickPointQueue.clear()
     }
   }
 

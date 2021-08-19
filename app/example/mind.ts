@@ -13,32 +13,33 @@ const chart = new Mind(myChart);
 const nodes = [{
   title: 'Javascript',
   type: '',
-  details: '',
-  children: [{
-    orient: 'auto',
-    nodes: [{
+  children: {
+    top: [],
+    right: [],
+    bottom: [{
       title: 'String'
     },{
       title: 'Number'
     },{
-      title: 'Math',
-    },{
       title: 'Array',
-      children: [{
-        nodes: [{
-          title: 'Map'
+      children: {
+        bottom: [{
+          title: 'map()'
         },{
-          title: 'forEach'
+          title: 'forEach()'
+        },{
+          title: 'reduce()'
         }]
-      }]
+      }
     },{
-      title: 'RegExp'
-    }]
-  }]
+      title: 'Math'
+    }],
+    left: []
+  }
 }]
 
 chart.init(nodes);
 
 chart.addEventListener('click', (e: any) => {
-  console.log('click e: ', e.target.name, e.target.value)
+  console.log('click e: ', e)
 })

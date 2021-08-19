@@ -1,6 +1,37 @@
 .node-adder {
+  position: absolute;
+  box-sizing: border-box;
+  z-index: 999;
+
   .adder-handle {
+    display: block;
+    position: absolute;
     width: 5px;
     height: 5px;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+    background-color: #fff;
+    cursor: pointer;
+
+    &.handle-left {
+      left: -4px;
+      top: 50%;
+      margin-top: -4px;
+    }
+    &.handle-top {
+      top: -4px;
+      left: 50%;
+      margin-left: -4px;
+    }
+    &.handle-right {
+      right: -4px;
+      top: 50%;
+      margin-top: -4px;
+    }
+    &.handle-bottom {
+      bottom: -4px;
+      left: 50%;
+      margin-left: -4px;
+    }
   }
 }

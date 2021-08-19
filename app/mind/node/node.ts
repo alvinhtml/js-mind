@@ -45,6 +45,8 @@ export default class Node {
 
   height: number = 40
 
+  name: string = ''
+
   //填充颜色或图案
   pattern = pattern
 
@@ -53,10 +55,13 @@ export default class Node {
 
   areaPattern = areaPattern
 
+  actived: boolean = false
+
   //临时禁用
   disabled: boolean = false
 
   recoverAnimateIng = false
+  
 
   constructor() {
 
