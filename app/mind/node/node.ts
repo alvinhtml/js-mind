@@ -4,11 +4,16 @@ import { lighten, darken, alpha } from '../../utils/tool'
 import { CLICK, MOUSEUP, MOUSEDOWN, MOUSEMOVE, MOUSESCROLL } from '../../constants'
 
 interface ChartEvent {
-  mouseX: number,
-  mouseY: number,
-  pageX: number,
-  pageY: number,
+  mouseX: number
+  mouseY: number
+  pageX: number
+  pageY: number
   target: Node
+}
+
+interface Link {
+  orient: string
+  node: Node
 }
 
 
@@ -61,7 +66,8 @@ export default class Node {
   disabled: boolean = false
 
   recoverAnimateIng = false
-  
+
+  links: Link[] = []
 
   constructor() {
 

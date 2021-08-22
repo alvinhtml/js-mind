@@ -27,6 +27,7 @@ export default class Scene {
   initContext() {
     this.context.strokeStyle = '#ffffff'
 		this.context.lineJoin = 'bevel'
+    this.context.lineCap = 'round'
 		this.context.miterLimit = 1
 		this.context.textAlign = 'center'
 		this.context.textBaseline = 'middle'

@@ -19,20 +19,32 @@ const nodes = [{
     bottom: [{
       title: 'String'
     },{
-      title: 'Number'
+      title: 'Number',
+      children: {
+        bottom: [{
+          title: 'toFixed'
+        }]
+      }
     },{
       title: 'Array',
       children: {
         bottom: [{
-          title: 'map()'
+          title: 'map'
         },{
-          title: 'forEach()'
+          title: 'forEach'
         },{
-          title: 'reduce()'
+          title: 'reduce'
         }]
       }
     },{
-      title: 'Math'
+      title: 'Math',
+      children: {
+        right: [{
+          title: 'random'
+        },{
+          title: 'floor'
+        }]
+      }
     }],
     left: []
   }

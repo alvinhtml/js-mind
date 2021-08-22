@@ -2,6 +2,13 @@ import Stage from "./stage"
 import Adder from "./adder"
 import { Rect } from "./node/index"
 
+type Node = Rect
+
+interface Link {
+  orient: string
+  node: Node
+}
+
 export class Mind {
 
   stage2d: Stage
@@ -18,13 +25,11 @@ export class Mind {
 
   adder: Adder
 
-  selected: Rect
+  selected: Node
 
   constructor(element: HTMLDivElement | null) {
     if (element) {
       this.stage2d = new Stage(element)
-      this.stage2d.translateX = (this.stage2d.width / 2) - 60
-      this.stage2d.translateY = (this.stage2d.height / 2) - 20
     }
   }
 
@@ -50,7 +55,7 @@ export class Mind {
     this.render()
   }
 
-  createNode(type: string): Rect {
+  createNode(type: string): Node {
     switch (type) {
       case 'rect':
         return new Rect()
@@ -61,7 +66,7 @@ export class Mind {
 
   initNode(data: any[]) {
     // 解析 json data, 并创建对应的节点
-    const parse = (data: any[], layer: number): any[] => {
+    const parse = (data: any[], parent: null | Node, orient: string): any[] => {
       console.log("data", data);
 
       if (!data || data.length <= 0) {
@@ -79,20 +84,26 @@ export class Mind {
         node.name = item.title
         this.nodes.push(node)
 
+        if (parent) {
+          node.links.push({
+            orient,
+            node: parent
+          })
+        }
+
         let top
         let right
         let bottom
         let left
 
         if (item.children) {
-          top = parse(item.children.top, layer + 1)
-          right = parse(item.children.right, layer + 1)
-          bottom = parse(item.children.bottom, layer + 1)
-          left = parse(item.children.left, layer + 1)
+          top = parse(item.children.top, node, 'top')
+          right = parse(item.children.right, node, 'right')
+          bottom = parse(item.children.bottom, node, 'bottom')
+          left = parse(item.children.left, node, 'left')
         }
 
         const nodeObject = {
-          layer,
           node,
           spaceWidth: 0,
           spaceHeight: 0
@@ -117,12 +128,12 @@ export class Mind {
       return nodes
     }
 
-    this.nodeTree = parse(data, 0)
+    this.nodeTree = parse(data, null, '')
   }
 
   initPosition() {
     const spaceX = 150
-    const spaceY = 80
+    const spaceY = 120
 
     // let items = [...this.nodeTree]
 
@@ -178,19 +189,19 @@ export class Mind {
         const item = data[i]
 
         if (isHorizontal) {
-          item.node.x = ox
+          item.node.x = ox + (item.spaceWidth / 2) - (item.node.width / 2)
           item.node.y = oy
           ox += item.spaceWidth
         } else {
           item.node.x = ox
-          item.node.y = oy
+          item.node.y = oy + (item.spaceHeight / 2) - (item.node.height / 2)
           oy += item.spaceHeight
         }
 
         if (item.children) {
           setPosition(item.children.top, item.node.x, item.node.y - spaceY, true)
-          setPosition(item.children.right, item.node.x + spaceX, item.node.y, false)
-          setPosition(item.children.bottom, item.node.x, item.node.y + spaceY, true)
+          setPosition(item.children.right, item.node.x + spaceX, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
+          setPosition(item.children.bottom, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y + spaceY, true)
           setPosition(item.children.left, item.node.x - spaceX, item.node.y, false)
         }
       }
@@ -243,7 +254,47 @@ export class Mind {
       this.nodes.forEach((node) => {
         node.paintTitle(scene.context)
       })
+
+      scene.context.beginPath()
+      scene.context.moveTo(0 , 0)
+      this.nodes.forEach((node) => {
+        if (node.links.length > 0) {
+          node.links.forEach((link: Link) => {
+            this.paintLine(scene.context, link.orient, link.node, node)
+          })
+        }
+      })
+      scene.context.moveTo(0 , 0)
+      scene.context.closePath()
+      scene.context.strokeStyle = '#999'
+      scene.context.lineWidth = 2
+
+      scene.context.stroke()
     })
+  }
+
+  paintLine(context: CanvasRenderingContext2D, orient: string, node: Node, toNode: Node) {
+    const space = 5
+
+    if (orient === 'bottom') {
+      const x1 = node.x + (node.width / 2)
+      const y1 = node.y + node.height + space
+      const x2 = toNode.x + (node.width / 2)
+      const y2 = toNode.y - space
+
+      context.moveTo(x1, y1)
+      context.bezierCurveTo(x1, y1 + (y2 - y1) / 2, x2, y2 - (y2 - y1) / 2, x2, y2)
+    }
+
+    if (orient === 'right') {
+      const x1 = node.x + node.width + space
+      const y1 = node.y + (node.height / 2)
+      const x2 = toNode.x - 5
+      const y2 = toNode.y + (toNode.height / 2)
+
+      context.moveTo(x1, y1)
+      context.bezierCurveTo(x1 + (x2 - x1) / 2, y1, x2 - (x2 - x1) / 2, y2, x2, y2)
+    }
   }
 
   initAdder() {

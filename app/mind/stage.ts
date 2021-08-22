@@ -31,8 +31,8 @@ export default class Stage {
   public scale = 1
 
   //当前舞台的偏移
-  public translateX: number = 0
-  public translateY: number = 0
+  public translateX: number
+  public translateY: number
 
   public drawing: boolean = false
 
@@ -75,6 +75,11 @@ export default class Stage {
     this.offsetX = rect.x
     this.offsetY = rect.y
 
+    this.translateX = parseInt(localStorage.getItem('translateX') || '0', 10)
+    this.translateY = parseInt(localStorage.getItem('translateY') || '0', 10)
+
+    console.log("this.translateX", this.translateX);
+
     const context = document.createElement('canvas').getContext('2d')
 
     if (context) {
@@ -96,27 +101,30 @@ export default class Stage {
     let lastY = 0
 
     this.addEventListener('mousedown', (e: any) => {
+      console.log("e, this.drawing", e, this.drawing);
       if (!e.target) {
         this.drawing = true
         lastX = e.mouseX
         lastY = e.mouseY
       }
-      console.log("e, this.drawing", e, this.drawing);
     })
 
     this.addEventListener('mouseup', (e: any) => {
       if (!e.target) {
         this.drawing = false
+        localStorage.setItem('translateX', this.translateX.toString())
+        localStorage.setItem('translateY', this.translateY.toString())
       }
       console.log("e, this.drawing", e, this.drawing);
     })
 
     this.addEventListener('mousemove', (e: any) => {
-      console.log("e", e);
       if (this.drawing) {
         this.translateX = this.translateX + (e.mouseX - lastX)
         this.translateY = this.translateY + (e.mouseY - lastY)
       }
+      lastX = e.mouseX
+      lastY = e.mouseY
     })
   }
 
@@ -239,8 +247,9 @@ export default class Stage {
     }
 
     if (!this.mousemovePointQueue.isEmpty()) {
+      console.log("1", 1);
       this.events.forEach((event: Event2d) => {
-        if (event.eventType === MOUSEOUT) {
+        if (event.eventType === MOUSEMOVE) {
           event.callback({
             mouseX: Math.round(this.mouseX / this.pixelRatio),
             mouseY: Math.round(this.mouseY / this.pixelRatio),
