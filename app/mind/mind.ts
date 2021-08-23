@@ -9,6 +9,11 @@ interface Link {
   node: Node
 }
 
+interface Space {
+  width: number
+  height: number
+}
+
 export class Mind {
 
   stage2d: Stage
@@ -67,7 +72,6 @@ export class Mind {
   initNode(data: any[]) {
     // 解析 json data, 并创建对应的节点
     const parse = (data: any[], parent: null | Node, orient: string): any[] => {
-      console.log("data", data);
 
       if (!data || data.length <= 0) {
         return []
@@ -132,12 +136,23 @@ export class Mind {
   }
 
   initPosition() {
-    const spaceX = 150
-    const spaceY = 120
+    const spaceWidth = 100
+    const spaceHeight = 100
 
-    // let items = [...this.nodeTree]
-
-    const boundingClientRect = (data: any[], isGrowthX: boolean) => {
+    /**
+     * 计算每个节点和其子节点所占空间大小
+     *
+     * @param {any[]}   data children data.
+     * @param {boolean} isHorizontal children orient.
+     * @internal
+     */
+    const boundingClientRect = (data: any[], isHorizontal: boolean): Space => {
+      // if (data.length === 0) {
+      //   return {
+      //     width: 0,
+      //     height: 0
+      //   }
+      // }
 
       let width = 0
       let height = 0
@@ -145,29 +160,30 @@ export class Mind {
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
 
+        item.spaceWidth = spaceWidth
+        item.spaceHeight = spaceHeight
+
         if (item.children) {
           const top = boundingClientRect(item.children.top, true)
           const right = boundingClientRect(item.children.right, false)
           const bottom = boundingClientRect(item.children.bottom, true)
           const left = boundingClientRect(item.children.left, false)
 
+          // console.log(item.node.name, left, top, bottom, right);
 
-          item.spaceWidth = Math.max(left.width + right.width, top.width, bottom.width)
-          item.spaceHeight = Math.max(top.height + bottom.height, left.height, right.height)
-        } else {
-          item.spaceWidth = spaceX
-          item.spaceHeight = spaceY
+          item.spaceWidth += Math.max(left.width + right.width, top.width - spaceWidth, bottom.width - spaceWidth)
+          item.spaceHeight += Math.max(top.height + bottom.height, left.height - spaceHeight, right.height - spaceHeight)
         }
 
-        console.log("item", item);
-
-        if (isGrowthX) {
+        if (isHorizontal) {
           width += item.spaceWidth
-          height = item.spaceHeight + spaceY
+          height = spaceHeight
         } else {
-          width = item.spaceWidth + spaceX
+          width = spaceWidth
           height += item.spaceHeight
         }
+
+        console.log(item.node.name, item);
       }
 
       return {
@@ -178,62 +194,112 @@ export class Mind {
 
     boundingClientRect(this.nodeTree, true)
 
-    // console.log("this.nodeTree == ", this.nodeTree);
+    /**
+     * 根据坐标和子节点，计算当前节点的位置信息
+     *
+     * @param {Object[]}  data children data.
+     * @param {number}    spaceX X 坐标.
+     * @param {number}    spaceY Y 坐标.
+     * @param {boolean}   isHorizontal children orient.
+     * @internal
+     */
+    const setPosition = (data: any[], spaceX: number, spaceY: number, isHorizontal: boolean) => {
+      let x = spaceX
+      let y = spaceY
 
-
-    const setPosition = (data: any[], x: number, y: number, isHorizontal: boolean) => {
-      let ox = x
-      let oy = y
 
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
 
         if (isHorizontal) {
-          item.node.x = ox + (item.spaceWidth / 2) - (item.node.width / 2)
-          item.node.y = oy
-          ox += item.spaceWidth
+          item.node.x = x + (item.spaceWidth / 2) - (item.node.width / 2)
+          item.node.y = y
+          x += item.spaceWidth
         } else {
-          item.node.x = ox
-          item.node.y = oy + (item.spaceHeight / 2) - (item.node.height / 2)
-          oy += item.spaceHeight
+          item.node.x = x
+          item.node.y = y + (item.spaceHeight / 2) - (item.node.height / 2)
+          y += item.spaceHeight
         }
 
+
         if (item.children) {
-          setPosition(item.children.top, item.node.x, item.node.y - spaceY, true)
-          setPosition(item.children.right, item.node.x + spaceX, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
-          setPosition(item.children.bottom, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y + spaceY, true)
-          setPosition(item.children.left, item.node.x - spaceX, item.node.y, false)
+          if (item.children.left.length > 0) {
+            item.node.x = item.node.x + (spaceWidth / 2)
+          }
+
+          if (item.children.right.length > 0) {
+            item.node.x = item.node.x - (spaceWidth / 2)
+          }
+
+          if (item.children.top.length > 0) {
+            item.node.y = item.node.y + (spaceHeight / 2)
+          }
+
+          if (item.children.top.length > 0) {
+            item.node.y = item.node.y - (spaceHeight / 2)
+          }
+
+          setPosition(item.children.top, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y - spaceHeight, true)
+          setPosition(item.children.right, item.node.x + spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
+          setPosition(item.children.bottom, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y + spaceHeight, true)
+          setPosition(item.children.left, item.node.x - spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
         }
+
+
+
       }
+
+
+
+
+
+      // let ox = spaceX
+      // let oy = spaceY
+
+      // for (let i = 0; i < data.length; i++) {
+      //   const item = data[i]
+      //
+      //   if (isHorizontal) {
+      //     item.node.x = ox + (item.spaceWidth / 2) - (item.node.width / 2)
+      //     item.node.y = oy
+      //     ox += item.spaceWidth
+      //   } else {
+      //     item.node.x = ox
+      //     item.node.y = oy - (item.node.height / 2) + (item.spaceHeight / 2)
+      //     oy += item.spaceHeight
+      //   }
+      //
+      //   if (item.children) {
+      //     if (item.children.left.length > 0) {
+      //       item.node.x = item.node.x + (spaceWidth / 2)
+      //     }
+      //
+      //     if (item.children.right.length > 0) {
+      //       item.node.x = item.node.x - (spaceWidth / 2)
+      //     }
+      //
+      //
+      //     // setPosition(item.children.top, item.node.x, item.node.y - spaceHeight, true)
+      //     // setPosition(item.children.right, item.node.x + spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
+      //     // setPosition(item.children.bottom, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y + spaceHeight, true)
+      //     // setPosition(item.children.left, item.node.x - spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
+      //
+      //     setPosition(item.children.top, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y - spaceHeight, true)
+      //     setPosition(item.children.right, item.node.x + spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
+      //     setPosition(item.children.bottom, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y + spaceHeight, true)
+      //     setPosition(item.children.left, item.node.x - spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
+      //
+      //     // setPosition(item.children.top, item.node.x, item.node.y - spaceHeight, true)
+      //     // setPosition(item.children.right, item.node.x + spaceWidth, item.node.y, false)
+      //     // setPosition(item.children.bottom, item.node.x, item.node.y + spaceHeight, true)
+      //     // setPosition(item.children.left, item.node.x - spaceWidth, item.node.y, false)
+      //   }
+      // }
     }
 
     setPosition(this.nodeTree, 0, 0, true)
 
-
-    // while (items.length > 0) {
-    //   const item = items.shift()
-    //
-    //   item.node.x = 0
-    //   item.node.y = 0
-    //
-    //
-    //   if (item.children) {
-    //     item.children.forEach((child: any) => {
-    //       if (child.nodes) {
-    //         items = items.concat(child.nodes)
-    //       }
-    //     })
-    //   }
-    // }
   }
-
-  // initNode(context: CanvasRenderingContext2D) {
-  //   this.nodes.forEach((node) => {
-  //     node.width = 120
-  //     node.height = 40
-  //   })
-  // }
-
 
   render() {
     const scene = this.stage2d.getScene()
@@ -245,16 +311,7 @@ export class Mind {
 
     scene.paint(() => {
 
-      this.nodes.forEach((node) => {
-        node.paint(scene.context)
-      })
-
-      scene.context.fillStyle = '#333'
-
-      this.nodes.forEach((node) => {
-        node.paintTitle(scene.context)
-      })
-
+      // 画节点之间的联线
       scene.context.beginPath()
       scene.context.moveTo(0 , 0)
       this.nodes.forEach((node) => {
@@ -267,30 +324,64 @@ export class Mind {
       scene.context.moveTo(0 , 0)
       scene.context.closePath()
       scene.context.strokeStyle = '#999'
-      scene.context.lineWidth = 2
+      scene.context.lineWidth = 1
 
       scene.context.stroke()
+
+      scene.context.lineWidth = 1
+
+      // 画节点
+      this.nodes.forEach((node) => {
+        node.paint(scene.context)
+      })
+
+      scene.context.fillStyle = '#333'
+
+      // 名称文字
+      this.nodes.forEach((node) => {
+        node.paintTitle(scene.context)
+      })
     })
   }
 
   paintLine(context: CanvasRenderingContext2D, orient: string, node: Node, toNode: Node) {
-    const space = 5
+    const space = 3
 
     if (orient === 'bottom') {
-      const x1 = node.x + (node.width / 2)
-      const y1 = node.y + node.height + space
-      const x2 = toNode.x + (node.width / 2)
-      const y2 = toNode.y - space
+      const x1 = node.x
+      const y1 = node.y + (node.height / 2) + space
+      const x2 = toNode.x
+      const y2 = toNode.y - (toNode.height / 2) - space
+
+      context.moveTo(x1, y1)
+      context.bezierCurveTo(x1, y1 + (y2 - y1) / 2, x2, y2 - (y2 - y1) / 2, x2, y2)
+    }
+
+    if (orient === 'top') {
+      const x1 = node.x
+      const y1 = node.y - (node.height / 2) - space
+      const x2 = toNode.x
+      const y2 = toNode.y + (toNode.height / 2) + space
 
       context.moveTo(x1, y1)
       context.bezierCurveTo(x1, y1 + (y2 - y1) / 2, x2, y2 - (y2 - y1) / 2, x2, y2)
     }
 
     if (orient === 'right') {
-      const x1 = node.x + node.width + space
-      const y1 = node.y + (node.height / 2)
-      const x2 = toNode.x - 5
-      const y2 = toNode.y + (toNode.height / 2)
+      const x1 = node.x + (node.width / 2) + space
+      const y1 = node.y
+      const x2 = toNode.x - (toNode.width / 2) - space
+      const y2 = toNode.y
+
+      context.moveTo(x1, y1)
+      context.bezierCurveTo(x1 + (x2 - x1) / 2, y1, x2 - (x2 - x1) / 2, y2, x2, y2)
+    }
+
+    if (orient === 'left') {
+      const x1 = node.x - (node.width / 2) - space
+      const y1 = node.y
+      const x2 = toNode.x + (toNode.width / 2) + space
+      const y2 = toNode.y
 
       context.moveTo(x1, y1)
       context.bezierCurveTo(x1 + (x2 - x1) / 2, y1, x2 - (x2 - x1) / 2, y2, x2, y2)

@@ -11,18 +11,67 @@ document.body.appendChild(myChart);
 const chart = new Mind(myChart);
 
 const nodes = [{
+  title: 'CSS',
+  children: {
+    left: [{
+        title: 'background'
+      },{
+        title: 'border',
+        children: {
+          left: [{
+              title: 'left'
+            },{
+              title: 'right'
+            },{
+              title: 'bottom'
+            },{
+              title: 'top'
+          }]
+        }
+      },{
+        title: 'text'
+      },{
+        title: 'font'
+    }]
+  }
+},{
   title: 'Javascript',
   type: '',
   children: {
-    top: [],
+    top: [{
+      title: 'e45'
+    }],
     right: [],
     bottom: [{
-      title: 'String'
+      title: 'String',
+      children: {
+        bottom: [{
+          title: 'bb'
+        }],
+        top: [{
+          title: 'cc'
+        }]
+      }
     },{
       title: 'Number',
       children: {
+        left1: [{
+          title: 'aa'
+        }],
         bottom: [{
-          title: 'toFixed'
+          title: 'toFixed',
+          children: {
+            bottom: [{
+              title: 'test'
+            }]
+          }
+        }],
+        bottom1: [{
+          title: 'map'
+        },{
+          title: 'forEach'
+        },{
+          title: 'reduce'
         }]
       }
     },{
@@ -39,10 +88,15 @@ const nodes = [{
     },{
       title: 'Math',
       children: {
-        right: [{
+        left: [{
           title: 'random'
         },{
           title: 'floor'
+        }],
+        right: [{
+          title: 'max'
+        },{
+          title: 'min'
         }]
       }
     }],

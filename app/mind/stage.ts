@@ -104,6 +104,7 @@ export default class Stage {
       console.log("e, this.drawing", e, this.drawing);
       if (!e.target) {
         this.drawing = true
+        this.container.style.cursor = 'grab'
         lastX = e.mouseX
         lastY = e.mouseY
       }
@@ -112,6 +113,7 @@ export default class Stage {
     this.addEventListener('mouseup', (e: any) => {
       if (!e.target) {
         this.drawing = false
+        this.container.style.cursor = 'auto'
         localStorage.setItem('translateX', this.translateX.toString())
         localStorage.setItem('translateY', this.translateY.toString())
       }

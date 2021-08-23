@@ -46,9 +46,9 @@ export default class Node {
   //形状的Y坐标
   y: number = 0
 
-  width: number = 120
+  width: number = 68
 
-  height: number = 40
+  height: number = 30
 
   name: string = ''
 

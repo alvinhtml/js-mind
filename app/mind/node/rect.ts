@@ -36,7 +36,7 @@ export default class Rect extends Node {
 
   paintTitle(context: CanvasRenderingContext2D) {
     //绘制名称
-    context.fillText(this.name, this.x + this.width / 2, this.y + this.height / 2)
+    context.fillText(this.name, this.x, this.y)
     context.fillRect(this.x, this.y, 2, 2)
   }
   paint(context: CanvasRenderingContext2D) {
@@ -48,12 +48,15 @@ export default class Rect extends Node {
       this.radius = this.height / 2
     }
 
+    const x = this.x - (this.width / 2)
+    const y = this.y - (this.height / 2)
+
     context.beginPath()
-    context.moveTo(this.x + this.radius, this.y)
-    context.arcTo(this.x + this.width, this.y, this.x + this.width, this.y + this.height, this.radius)
-    context.arcTo(this.x + this.width, this.y + this.height, this.x, this.y + this.height, this.radius)
-    context.arcTo(this.x, this.y + this.height, this.x, this.y, this.radius)
-    context.arcTo(this.x, this.y, this.x + this.width, this.y, this.radius)
+    context.moveTo(x + this.radius, y)
+    context.arcTo(x + this.width, y, x + this.width, y + this.height, this.radius)
+    context.arcTo(x + this.width, y + this.height, x, y + this.height, this.radius)
+    context.arcTo(x, y + this.height, x, y, this.radius)
+    context.arcTo(x, y, x + this.width, y, this.radius)
 
     // context.rect(this.x, this.y, this.width, this.height);
     context.closePath()
