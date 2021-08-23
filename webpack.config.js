@@ -10,8 +10,8 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
-    library: 'simple-chart',  // 类库名称
-    libraryTarget: 'umd'  // 类库打包方式
+    library: 'simple-chart', // 类库名称
+    libraryTarget: 'umd' // 类库打包方式
   },
   resolve: {
     modules: [path.resolve('node_modules')],
@@ -21,19 +21,27 @@ module.exports = {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.scss', '.css']
   },
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
         use: ['ts-loader']
+      },
+      {
+        test: /\.(scss|sass)$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          'postcss-loader',
+          'sass-loader'
+        ]
       },
       {
         test: /\.(jpg|png|gif|jpeg|bmp|eot|svg|ttf|woff|woff2)$/,
         use: {
           loader: 'url-loader',
           options: {
-            limit: 20 * 1024,
-            outputPath: './',
+            limit: 200 * 1024,
+            // outputPath: './',
           }
         }
       }
@@ -41,9 +49,9 @@ module.exports = {
   },
   watch: true,
   watchOptions: {
-      poll: 2000, //每秒问我多少次
-      aggregateTimeout: 1000, //防抖
-      ignored: /node_modules|vendor|build|public|resources/
+    poll: 2000, //每秒问我多少次
+    aggregateTimeout: 1000, //防抖
+    ignored: /node_modules|vendor|build|public|resources/
   },
   plugins: [
     new HtmlWebpackPlugin({
