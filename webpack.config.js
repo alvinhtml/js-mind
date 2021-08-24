@@ -6,6 +6,7 @@ module.exports = {
   entry: {
     index: ['./node_modules/hidpi-canvas/dist/hidpi-canvas.min.js', './app/index.ts'],
     mind: './app/example/mind.ts',
+    tree: './app/example/tree.ts'
   },
   output: {
     filename: '[name].js',
@@ -58,6 +59,11 @@ module.exports = {
       template: './app/index.html',
       chunks: ['index', 'mind'],
       filename: './example/mind.html'
+    }),
+    new HtmlWebpackPlugin({
+      template: './app/index.html',
+      chunks: ['index', 'tree'],
+      filename: './example/tree.html'
     })
   ],
   devServer: {

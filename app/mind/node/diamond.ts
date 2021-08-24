@@ -1,13 +1,13 @@
 import Node from './node'
 
 //饼状图
-export default class Rect extends Node {
+export default class Diamond extends Node {
 
   radius: number = 6
 
   constructor() {
     super()
-    this.type = 'rect'
+    this.type = 'diamond'
   }
 
   //点击动画
@@ -39,23 +39,13 @@ export default class Rect extends Node {
     context.fillText(this.name, this.x, this.y)
   }
   paint(context: CanvasRenderingContext2D) {
-    if (this.width < 2 * this.radius) {
-      this.radius = this.width / 2;
-    }
-
-    if (this.height < 2 * this.radius) {
-      this.radius = this.height / 2
-    }
-
-    const x = this.x - (this.width / 2)
-    const y = this.y - (this.height / 2)
 
     context.beginPath()
-    context.moveTo(x + this.radius, y)
-    context.arcTo(x + this.width, y, x + this.width, y + this.height, this.radius)
-    context.arcTo(x + this.width, y + this.height, x, y + this.height, this.radius)
-    context.arcTo(x, y + this.height, x, y, this.radius)
-    context.arcTo(x, y, x + this.width, y, this.radius)
+    context.moveTo(this.x, this.y - this.height / 2)
+    context.lineTo(this.x + this.width / 2, this.y)
+    context.lineTo(this.x, this.y + this.height / 2)
+    context.lineTo(this.x - this.width / 2, this.y)
+
 
     // context.rect(this.x, this.y, this.width, this.height);
     context.closePath()

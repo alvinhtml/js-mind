@@ -31,8 +31,8 @@ export default class Stage {
   public scale = 1
 
   //当前舞台的偏移
-  public translateX: number
-  public translateY: number
+  public translateX: number = 0
+  public translateY: number = 0
 
   public drawing: boolean = false
 
@@ -75,10 +75,8 @@ export default class Stage {
     this.offsetX = rect.x
     this.offsetY = rect.y
 
-    this.translateX = parseInt(localStorage.getItem('translateX') || '0', 10)
-    this.translateY = parseInt(localStorage.getItem('translateY') || '0', 10)
-
-    console.log("this.translateX", this.translateX);
+    // this.translateX = parseInt(localStorage.getItem('translateX') || '0', 10)
+    // this.translateY = parseInt(localStorage.getItem('translateY') || '0', 10)
 
     const context = document.createElement('canvas').getContext('2d')
 
@@ -129,6 +127,12 @@ export default class Stage {
       lastY = e.mouseY
     })
   }
+
+  initTranslate(width: number, height: number) {
+    this.translateX = (this.width / 2) - (width / 2)
+    this.translateY = (this.height / 2) - (height / 2)
+  }
+
 
   //初始化事件监听
   initEventListener() {

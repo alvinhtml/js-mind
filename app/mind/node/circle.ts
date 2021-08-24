@@ -1,13 +1,17 @@
 import Node from './node'
 
 //饼状图
-export default class Rect extends Node {
+export default class Circle extends Node {
 
   radius: number = 6
 
+  width: number = 60
+
+  height: number = 60
+
   constructor() {
     super()
-    this.type = 'rect'
+    this.type = 'circle'
   }
 
   //点击动画
@@ -51,11 +55,8 @@ export default class Rect extends Node {
     const y = this.y - (this.height / 2)
 
     context.beginPath()
-    context.moveTo(x + this.radius, y)
-    context.arcTo(x + this.width, y, x + this.width, y + this.height, this.radius)
-    context.arcTo(x + this.width, y + this.height, x, y + this.height, this.radius)
-    context.arcTo(x, y + this.height, x, y, this.radius)
-    context.arcTo(x, y, x + this.width, y, this.radius)
+
+    context.arc(this.x, this.y, this.width / 2, 0, 2 * Math.PI);
 
     // context.rect(this.x, this.y, this.width, this.height);
     context.closePath()

@@ -2,110 +2,71 @@ import Mind from '../index';
 
 const colors = ['#f2711c', '#2185d0', '#21ba45', '#b5cc18', '#00b5ad', '#fbbd08', '#6435c9', '#a333c8', '#e03997', '#a5673f']
 
-const myChart = document.createElement('div');
+const myMind = document.createElement('div');
 
-myChart.className = 'chart';
+myMind.className = 'chart';
 
-document.body.appendChild(myChart);
+document.body.appendChild(myMind);
 
-const chart = new Mind(myChart);
+const mind = new Mind(myMind);
 
-const nodes = [{
-  title: 'CSS',
+let nodes = [{
+  title: '开始',
+  type: 'circle',
+  color: '#21ba45',
   children: {
-    left: [{
-        title: 'background'
-      },{
-        title: 'border',
-        children: {
-          left: [{
-              title: 'left'
-            },{
-              title: 'right'
-            },{
-              title: 'bottom'
-            },{
-              title: 'top'
-          }]
-        }
-      },{
-        title: 'text'
-      },{
-        title: 'font'
-    }]
-  }
-},{
-  title: 'Javascript',
-  type: '',
-  children: {
-    top: [{
-      title: 'e45'
-    }],
-    right: [],
     bottom: [{
-      title: 'String',
+      title: '设置初始值',
       children: {
         bottom: [{
-          title: 'bb'
-        }],
-        top: [{
-          title: 'cc'
-        }]
-      }
-    },{
-      title: 'Number',
-      children: {
-        left1: [{
-          title: 'aa'
-        }],
-        bottom: [{
-          title: 'toFixed',
+          title: '等待接收数据',
           children: {
             bottom: [{
-              title: 'test'
+              title: 'N=0?',
+              type: 'diamond',
+              color: '#f2711c',
+              children: {
+                bottom: [{
+                  title: '接收标志信息',
+                  children: {
+                    bottom: [{
+                      title: 'N=1',
+                      type: 'diamond',
+                      color: '#f2711c',
+                      children: {
+                        bottom: [{
+                          title: '显示烟雾',
+                        }]
+                      }
+                    }]
+                  }
+                }],
+                right: [{
+                  title: '接收浓度值',
+                  children: {
+                    bottom: [{
+                      title: 'N=0',
+                      type: 'diamond',
+                      color: '#f2711c',
+                      children: {
+                        bottom: [{
+                          title: '显示一氧化碳',
+                        }]
+                      }
+                    }]
+                  }
+                }]
+              }
             }]
           }
-        }],
-        bottom1: [{
-          title: 'map'
-        },{
-          title: 'forEach'
-        },{
-          title: 'reduce'
         }]
       }
-    },{
-      title: 'Array',
-      children: {
-        bottom: [{
-          title: 'map'
-        },{
-          title: 'forEach'
-        },{
-          title: 'reduce'
-        }]
-      }
-    },{
-      title: 'Math',
-      children: {
-        left: [{
-          title: 'random'
-        },{
-          title: 'floor'
-        }],
-        right: [{
-          title: 'max'
-        },{
-          title: 'min'
-        }]
-      }
-    }],
-    left: []
+    }]
   }
 }]
 
-chart.init(nodes);
+mind.init(nodes);
 
-chart.addEventListener('click', (e: any) => {
+mind.addEventListener('click', (e: any) => {
   console.log('click e: ', e)
 })

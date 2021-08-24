@@ -1,5 +1,5 @@
 {
-  "name": "simple-chart",
+  "name": "js-mind",
   "version": "1.0.0",
   "description": "A simple chart Library",
   "main": "dist/index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alvinhtml/simple-chart.git"
+    "url": "git+https://github.com/alvinhtml/js-mind.git"
   },
   "keywords": [
     "chart"
@@ -19,9 +19,9 @@
   "author": "alvinhtml@gmail.com",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/alvinhtml/simple-chart/issues"
+    "url": "https://github.com/alvinhtml/js-mind/issues"
   },
-  "homepage": "https://github.com/alvinhtml/simple-chart#readme",
+  "homepage": "https://github.com/alvinhtml/js-mind#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",

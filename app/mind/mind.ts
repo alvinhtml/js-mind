@@ -1,6 +1,6 @@
 import Stage from "./stage"
 import Adder from "./adder"
-import { Rect } from "./node/index"
+import { Rect, Circle, Diamond } from "./node/index"
 
 type Node = Rect
 
@@ -64,6 +64,10 @@ export class Mind {
     switch (type) {
       case 'rect':
         return new Rect()
+      case 'circle':
+        return new Circle()
+      case 'diamond':
+        return new Diamond()
       default:
         return new Rect()
     }
@@ -86,6 +90,9 @@ export class Mind {
         const node = this.createNode(item.type)
         node.stage2d = this.stage2d
         node.name = item.title
+        if (item.color) {
+          node.initColor(item.color)
+        }
         this.nodes.push(node)
 
         if (parent) {
@@ -147,12 +154,6 @@ export class Mind {
      * @internal
      */
     const boundingClientRect = (data: any[], isHorizontal: boolean): Space => {
-      // if (data.length === 0) {
-      //   return {
-      //     width: 0,
-      //     height: 0
-      //   }
-      // }
 
       let width = 0
       let height = 0
@@ -175,24 +176,32 @@ export class Mind {
           item.spaceHeight += Math.max(top.height + bottom.height, left.height - spaceHeight, right.height - spaceHeight)
         }
 
+        // console.log(item.node.name, item, isHorizontal);
+
         if (isHorizontal) {
+          console.log(item.node.name, width, height, data);
           width += item.spaceWidth
-          height = spaceHeight
+          height = Math.max(item.spaceHeight, height)
         } else {
-          width = spaceWidth
+          width = Math.max(item.spaceWidth, width)
           height += item.spaceHeight
         }
 
-        console.log(item.node.name, item);
-      }
 
+      }
       return {
         width,
         height
       }
     }
 
-    boundingClientRect(this.nodeTree, true)
+    const rect = boundingClientRect(this.nodeTree, true)
+
+    if (this.stage2d.translateX === 0 && this.stage2d.translateY === 0) {
+      this.stage2d.initTranslate(rect.width, rect.height)
+    }
+
+    console.log("rect", rect);
 
     /**
      * 根据坐标和子节点，计算当前节点的位置信息
@@ -207,94 +216,41 @@ export class Mind {
       let x = spaceX
       let y = spaceY
 
-
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
 
         if (isHorizontal) {
-          item.node.x = x + (item.spaceWidth / 2) - (item.node.width / 2)
+          item.node.x = x + (item.spaceWidth / 2)
           item.node.y = y
-          x += item.spaceWidth
         } else {
           item.node.x = x
-          item.node.y = y + (item.spaceHeight / 2) - (item.node.height / 2)
-          y += item.spaceHeight
+          item.node.y = y + (item.spaceHeight / 2)
         }
-
 
         if (item.children) {
-          if (item.children.left.length > 0) {
-            item.node.x = item.node.x + (spaceWidth / 2)
+          const topSpaceWidth = item.children.top.reduce((a: number, b: any) => a + b.spaceWidth , 0)
+          const bottomSpaceWidth = item.children.bottom.reduce((a: number, b: any) => a + b.spaceWidth , 0)
+          const leftSpaceWidth = item.children.left.reduce((a: number, b: any) => Math.max(a, b.spaceWidth), 0)
+          // const rightSpaceWidth = item.children.right.reduce((a: number, b: any) => Math.max(a, b.spaceWidth), 0)
+          const leftSpaceHeight = item.children.left.reduce((a: number, b: any) => a + b.spaceHeight , 0)
+          const rightSpaceHeight = item.children.right.reduce((a: number, b: any) => a + b.spaceHeight , 0)
+
+          if (leftSpaceWidth > 0 && isHorizontal) {
+            item.node.x = x + leftSpaceWidth + (spaceWidth / 2)
           }
 
-          if (item.children.right.length > 0) {
-            item.node.x = item.node.x - (spaceWidth / 2)
-          }
-
-          if (item.children.top.length > 0) {
-            item.node.y = item.node.y + (spaceHeight / 2)
-          }
-
-          if (item.children.top.length > 0) {
-            item.node.y = item.node.y - (spaceHeight / 2)
-          }
-
-          setPosition(item.children.top, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y - spaceHeight, true)
-          setPosition(item.children.right, item.node.x + spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
-          setPosition(item.children.bottom, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y + spaceHeight, true)
-          setPosition(item.children.left, item.node.x - spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
+          setPosition(item.children.top, item.node.x - (topSpaceWidth / 2), item.node.y - spaceHeight, true)
+          setPosition(item.children.right, item.node.x + spaceWidth, item.node.y - (rightSpaceHeight / 2), false)
+          setPosition(item.children.bottom, item.node.x - (bottomSpaceWidth / 2), item.node.y + spaceHeight, true)
+          setPosition(item.children.left, item.node.x - spaceWidth, item.node.y - (leftSpaceHeight / 2), false)
         }
 
-
-
+        if (isHorizontal) {
+          x += item.spaceWidth
+        } else {
+          y += item.spaceHeight
+        }
       }
-
-
-
-
-
-      // let ox = spaceX
-      // let oy = spaceY
-
-      // for (let i = 0; i < data.length; i++) {
-      //   const item = data[i]
-      //
-      //   if (isHorizontal) {
-      //     item.node.x = ox + (item.spaceWidth / 2) - (item.node.width / 2)
-      //     item.node.y = oy
-      //     ox += item.spaceWidth
-      //   } else {
-      //     item.node.x = ox
-      //     item.node.y = oy - (item.node.height / 2) + (item.spaceHeight / 2)
-      //     oy += item.spaceHeight
-      //   }
-      //
-      //   if (item.children) {
-      //     if (item.children.left.length > 0) {
-      //       item.node.x = item.node.x + (spaceWidth / 2)
-      //     }
-      //
-      //     if (item.children.right.length > 0) {
-      //       item.node.x = item.node.x - (spaceWidth / 2)
-      //     }
-      //
-      //
-      //     // setPosition(item.children.top, item.node.x, item.node.y - spaceHeight, true)
-      //     // setPosition(item.children.right, item.node.x + spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
-      //     // setPosition(item.children.bottom, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y + spaceHeight, true)
-      //     // setPosition(item.children.left, item.node.x - spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
-      //
-      //     setPosition(item.children.top, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y - spaceHeight, true)
-      //     setPosition(item.children.right, item.node.x + spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
-      //     setPosition(item.children.bottom, item.node.x + (item.node.width / 2) - (item.spaceWidth / 2), item.node.y + spaceHeight, true)
-      //     setPosition(item.children.left, item.node.x - spaceWidth, item.node.y + (item.node.height / 2) - (item.spaceHeight / 2), false)
-      //
-      //     // setPosition(item.children.top, item.node.x, item.node.y - spaceHeight, true)
-      //     // setPosition(item.children.right, item.node.x + spaceWidth, item.node.y, false)
-      //     // setPosition(item.children.bottom, item.node.x, item.node.y + spaceHeight, true)
-      //     // setPosition(item.children.left, item.node.x - spaceWidth, item.node.y, false)
-      //   }
-      // }
     }
 
     setPosition(this.nodeTree, 0, 0, true)
@@ -304,10 +260,6 @@ export class Mind {
   render() {
     const scene = this.stage2d.getScene()
     scene.initContext()
-    console.log("this.nodes", this.nodes);
-
-
-
 
     scene.paint(() => {
 
@@ -345,7 +297,7 @@ export class Mind {
   }
 
   paintLine(context: CanvasRenderingContext2D, orient: string, node: Node, toNode: Node) {
-    const space = 3
+    const space = 2
 
     if (orient === 'bottom') {
       const x1 = node.x

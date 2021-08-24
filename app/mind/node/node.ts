@@ -30,8 +30,8 @@ interface Indexed {
 type Values<T> = T[keyof T]
 
 const pattern = '#2185d0'
-const mouseOverPattern = alpha('#2185d0', 0.1)
-const areaPattern = alpha('#2185d0', 0.2)
+const mouseOverPattern = lighten('#2185d0', 100)
+const areaPattern = lighten('#2185d0', 120)
 
 export default class Node {
   stage2d: Stage
@@ -46,9 +46,9 @@ export default class Node {
   //形状的Y坐标
   y: number = 0
 
-  width: number = 68
+  width: number = 80
 
-  height: number = 30
+  height: number = 32
 
   name: string = ''
 
@@ -188,6 +188,17 @@ export default class Node {
             break;
         }
       })
+    }
+  }
+
+  // 初始化节点颜色
+  initColor(hex: string) {
+    if (/^#([a-fA-F\d]{6}|[a-fA-F\d]{3})$/.test(hex)) {
+      this.pattern = hex
+      this.mouseOverPattern = lighten(hex)
+      this.areaPattern = lighten(hex, 50)
+    } else {
+      console.error('Only hex colors are supported')
     }
   }
 

@@ -11,18 +11,18 @@ function hexToRgb(hex: string) {
   return rgb;
 }
 
-export function lighten(hex: string): string {
+export function lighten(hex: string, value: number = 10): string {
   let rgb = hexToRgb(hex)
   let arr = rgb.map((v) => {
-    return Math.min(v + 10, 255)
+    return Math.min(v + value, 255)
   })
   return rgbToHex(arr[0], arr[1], arr[2])
 }
 
-export function darken(hex: string): string {
+export function darken(hex: string, value: number = 10): string {
   let rgb = hexToRgb(hex)
   let arr = rgb.map((v) => {
-    return Math.max(v - 10, 0)
+    return Math.max(v - value, 0)
   })
   return rgbToHex(arr[0], arr[1], arr[2])
 }

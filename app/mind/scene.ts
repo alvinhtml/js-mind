@@ -52,8 +52,8 @@ export default class Scene {
         //重新设定画布偏移和缩放
         this.context.translate(translateX, translateY)
 
-        // this.context.fillStyle = 'red'
-        // this.context.fillRect(0, 0, 100, 100)
+        // 背景网格
+        // this.paintGrid()
 
         this.context.scale(scale, scale)
 
@@ -69,6 +69,25 @@ export default class Scene {
     }
 
     requestAnimationFrame(frame);
+  }
+
+  paintGrid() {
+    this.context.fillStyle = 'rgba(0, 0, 0, 0.05)'
+
+    for (let j = -10; j < 10; j++) {
+      for (let i = -10; i < 10; i++) {
+        this.context.fillRect(200 * i, 200 * j, 100, 100)
+      }
+    }
+
+    for (let j = -10; j < 10; j++) {
+      for (let i = -10; i < 10; i++) {
+        this.context.fillRect(200 * i + 100, 200 * j + 100, 100, 100)
+      }
+    }
+
+    this.context.fillStyle = 'red'
+    this.context.fillRect(-1, -1, 2, 2)
   }
 
   paintOnce(fn: Function) {

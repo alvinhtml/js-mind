@@ -16,7 +16,7 @@ export default class Adder {
     orientArray.forEach((item: string) => {
       const handle = document.createElement('div')
       handle.classList.add('adder-handle', `handle-${item}`)
-      
+
       handle.onclick = () => {
         this.callback(item)
       }
@@ -26,8 +26,8 @@ export default class Adder {
   }
 
   show(x: number, y: number, width: number, height: number) {
-    this.node.style.left = x + 'px'
-    this.node.style.top = y + 'px'
+    this.node.style.left = x - (width / 2) + 'px'
+    this.node.style.top = y - (height / 2) + 'px'
     this.node.style.width = width + 'px'
     this.node.style.height = height + 'px'
     this.node.style.display = 'block'
