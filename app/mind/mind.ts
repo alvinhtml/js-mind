@@ -32,19 +32,22 @@ export class Mind {
 
   selected: Node
 
+  space: Space = {
+    width: 100,
+    height: 100
+  }
+
   constructor(element: HTMLDivElement | null) {
     if (element) {
       this.stage2d = new Stage(element)
     }
   }
 
-  init(data: any[]) {
+  init(data: any[], option: any) {
+
     this.initAdder()
     this.initNode(data)
-
     this.initPosition()
-    //
-
 
     this.stage2d.addEventListener('click', (e: any) => {
       console.log("e", e);

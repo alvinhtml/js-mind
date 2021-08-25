@@ -14,7 +14,10 @@
     "url": "git+https://github.com/alvinhtml/js-mind.git"
   },
   "keywords": [
-    "chart"
+    "js-mind",
+    "mind",
+    "web mind",
+    "tree"
   ],
   "author": "alvinhtml@gmail.com",
   "license": "MIT",
