@@ -43,7 +43,7 @@ export class Mind {
     }
   }
 
-  init(data: any[], option: any) {
+  init(data: any[]) {
 
     this.initAdder()
     this.initNode(data)
