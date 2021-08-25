@@ -57,7 +57,6 @@ export default class Rect extends Node {
     context.arcTo(x, y + this.height, x, y, this.radius)
     context.arcTo(x, y, x + this.width, y, this.radius)
 
-    // context.rect(this.x, this.y, this.width, this.height);
     context.closePath()
 
     if (context.isPointInPath(this.stage2d.mouseX, this.stage2d.mouseY)) {

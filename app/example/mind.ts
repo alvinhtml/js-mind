@@ -4,6 +4,7 @@ const colors = ['#f2711c', '#2185d0', '#21ba45', '#b5cc18', '#00b5ad', '#fbbd08'
 
 const myMind = document.createElement('div');
 
+myMind.id = 'my-mind'
 myMind.className = 'chart';
 
 document.body.appendChild(myMind);

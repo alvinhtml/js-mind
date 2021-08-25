@@ -1,5 +1,5 @@
 {
-  "name": "js-mind",
+  "name": "@alvinhtml/js-mind",
   "version": "1.0.1",
   "description": "A simple chart Library",
   "main": "dist/index.js",

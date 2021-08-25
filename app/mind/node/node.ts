@@ -46,6 +46,8 @@ export default class Node {
   //形状的Y坐标
   y: number = 0
 
+  customPosition: null | number[] = null
+
   width: number = 80
 
   height: number = 32
@@ -68,6 +70,8 @@ export default class Node {
   recoverAnimateIng = false
 
   links: Link[] = []
+
+  datahandle: any
 
   constructor() {
 

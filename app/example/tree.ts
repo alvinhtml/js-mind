@@ -4,6 +4,7 @@ const colors = ['#f2711c', '#2185d0', '#21ba45', '#b5cc18', '#00b5ad', '#fbbd08'
 
 const myTree = document.createElement('div');
 
+myTree.id = 'my-tree'
 myTree.className = 'chart';
 
 document.body.appendChild(myTree);

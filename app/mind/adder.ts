@@ -2,13 +2,14 @@ export default class Adder {
 
   node: HTMLDivElement
 
-  modal: HTMLDivElement
+  editer: HTMLDivElement
 
   callback: Function
+  editCallback: Function
 
-  constructor(element: HTMLDivElement, modal: HTMLDivElement) {
+  constructor(element: HTMLDivElement, editer: HTMLDivElement) {
     this.node = element
-    this.modal = modal
+    this.editer = editer
 
     const orientArray = ['left', 'top', 'right', 'bottom']
 
@@ -23,6 +24,19 @@ export default class Adder {
 
       element.appendChild(handle)
     })
+
+
+    const input = document.createElement('input')
+    editer.appendChild(input)
+
+    input.onkeydown = (e: KeyboardEvent) => {
+      e.stopPropagation()
+    }
+
+    this.node.ondblclick = () => {
+      this.editer.style.display = 'flex'
+      this.editCallback(input)
+    }
   }
 
   show(x: number, y: number, width: number, height: number) {
@@ -31,14 +45,24 @@ export default class Adder {
     this.node.style.width = width + 'px'
     this.node.style.height = height + 'px'
     this.node.style.display = 'block'
+
+    this.editer.style.left = x - (width / 2) + 3 + 'px'
+    this.editer.style.top = y - (height / 2) + 3 + 'px'
+    this.editer.style.width = width - 6 + 'px'
+    this.editer.style.height = height - 6 + 'px'
   }
 
   hide() {
     this.node.style.display = 'none'
+    this.editer.style.display = 'none'
   }
 
-  addNode(callback: Function) {
+  onAdd(callback: Function) {
     this.callback = callback
+  }
+
+  onEdit(callback: Function) {
+    this.editCallback = callback
   }
 
   static init(container: HTMLDivElement) {
@@ -49,12 +73,12 @@ export default class Adder {
     box.classList.add('node-adder')
     container.appendChild(box)
 
-    const modal = document.createElement('div')
-    modal.style.display = 'none'
-    modal.classList.add('node-modal')
+    const editer = document.createElement('div')
+    editer.style.display = 'none'
+    editer.classList.add('node-editer')
 
-    container.appendChild(modal)
+    container.appendChild(editer)
 
-    return new Adder(box, modal)
+    return new Adder(box, editer)
   }
 }

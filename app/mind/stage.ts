@@ -12,6 +12,8 @@ let lastIDOMHighResTimeStamp = 0;
 // 舞台<Stage>：大小位置事件
 export default class Stage {
 
+  public id: string = 'mind'
+
   // 容器, canvas 元素的 parent
   public container: HTMLDivElement
 
@@ -69,14 +71,18 @@ export default class Stage {
     this.width = container.clientWidth
     this.height = container.clientHeight
     this.container.style.position = 'relative'
+    this.id = container.id || 'mind'
 
     const rect = container.getBoundingClientRect()
 
     this.offsetX = rect.x
     this.offsetY = rect.y
 
-    // this.translateX = parseInt(localStorage.getItem('translateX') || '0', 10)
-    // this.translateY = parseInt(localStorage.getItem('translateY') || '0', 10)
+    console.log("localStorage.getItem(`${this.id}-translateX`)", localStorage.getItem(`${this.id}-translateX`), `${this.id}translateX`);
+    console.log("localStorage.getItem(`${this.id}-translateY`)", localStorage.getItem(`${this.id}-translateY`), `${this.id}translateY` );
+
+    this.translateX = parseInt(localStorage.getItem(`${this.id}-translateX`) || '0', 10)
+    this.translateY = parseInt(localStorage.getItem(`${this.id}-translateY`) || '0', 10)
 
     const context = document.createElement('canvas').getContext('2d')
 
@@ -99,7 +105,7 @@ export default class Stage {
     let lastY = 0
 
     this.addEventListener('mousedown', (e: any) => {
-      console.log("e, this.drawing", e, this.drawing);
+      console.log("e, this.drawing", e, this.drawing, e.target);
       if (!e.target) {
         this.drawing = true
         this.container.style.cursor = 'grab'
@@ -112,10 +118,9 @@ export default class Stage {
       if (!e.target) {
         this.drawing = false
         this.container.style.cursor = 'auto'
-        localStorage.setItem('translateX', this.translateX.toString())
-        localStorage.setItem('translateY', this.translateY.toString())
+        localStorage.setItem(`${this.id}-translateX`, this.translateX.toString())
+        localStorage.setItem(`${this.id}-translateY`, this.translateY.toString())
       }
-      console.log("e, this.drawing", e, this.drawing);
     })
 
     this.addEventListener('mousemove', (e: any) => {
