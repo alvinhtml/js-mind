@@ -19,7 +19,6 @@ export default class Scene {
 
     this.canvas = canvas
 
-
     const context = canvas.getContext('2d')
 
     if (context) {

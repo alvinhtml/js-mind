@@ -136,8 +136,6 @@ export class Mind {
       		context.textBaseline = 'middle'
       		context.fillStyle = '#ffffff'
 
-          console.log("this.nodes", this.nodes);
-
           // 求出最左节点的 x
           const tx = this.nodes.reduce((a, b) => Math.min(a, b.x), 0)
           // 求出最上节点的 y

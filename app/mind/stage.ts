@@ -7,7 +7,7 @@ import { CLICK, MOUSEUP, MOUSEDOWN, MOUSEMOVE, MOUSEOUT, MOUSESCROLL } from '../
 import { getPixelRatio } from '../utils/tool'
 
 //iDOMHighResTimeStamp
-let lastIDOMHighResTimeStamp = 0;
+let lastIDOMHighResTimeStamp = 0
 
 // 舞台<Stage>：大小位置事件
 export default class Stage {
@@ -39,7 +39,7 @@ export default class Stage {
   public drawing: boolean = false
 
   // 设备像素比
-  public pixelRatio = 1 //pixelRatio;
+  public pixelRatio = 1 //pixelRatio
 
   // 鼠标 X
   public mouseX: number = 0
@@ -78,9 +78,6 @@ export default class Stage {
     this.offsetX = rect.x
     this.offsetY = rect.y
 
-    console.log("localStorage.getItem(`${this.id}-translateX`)", localStorage.getItem(`${this.id}-translateX`), `${this.id}translateX`);
-    console.log("localStorage.getItem(`${this.id}-translateY`)", localStorage.getItem(`${this.id}-translateY`), `${this.id}translateY` );
-
     this.translateX = parseInt(localStorage.getItem(`${this.id}-translateX`) || '0', 10)
     this.translateY = parseInt(localStorage.getItem(`${this.id}-translateY`) || '0', 10)
 
@@ -105,7 +102,6 @@ export default class Stage {
     let lastY = 0
 
     this.addEventListener('mousedown', (e: any) => {
-      console.log("e, this.drawing", e, this.drawing, e.target);
       if (!e.target) {
         this.drawing = true
         this.container.style.cursor = 'grab'
@@ -144,7 +140,7 @@ export default class Stage {
     //添加事件监听
     document.addEventListener("mouseup", (e: MouseEvent) => {
       this.mouseupPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
-    }, false);
+    }, false)
 
     this.container.addEventListener("mousedown", (e: MouseEvent) => {
       this.mousedownPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
@@ -152,28 +148,22 @@ export default class Stage {
 
     this.container.addEventListener("click", (e: MouseEvent) => {
       this.clickPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
-    }, false);
+    }, false)
 
     this.container.addEventListener("mousemove", (e: MouseEvent) => {
-      this.pageX = e.pageX;
-      this.pageY = e.pageY;
+      this.pageX = e.pageX
+      this.pageY = e.pageY
       this.mouseX = (e.pageX - this.offsetX) * this.pixelRatio
       this.mouseY = (e.pageY - this.offsetY) * this.pixelRatio
 
       this.mousemovePointQueue.enqueue(new Point(this.mouseX, this.mouseY))
-    }, false);
+    }, false)
 
     //缩放事件
-    this.container.addEventListener("DOMMouseScroll", (e: MouseEvent) => {
-      //缩放，暂时禁用
-      //this.stageScroll(e)
-    }, false);
-
-    //兼容FF
-    // this.container.onmousewheel = (e: MouseEvent) => {
-    //   //缩放，暂时禁用
-    //   //this.stageScroll(e)
-    // }
+    this.container.addEventListener('mousewheel', (e: WheelEvent) => {
+      //缩放
+      this.stageScroll(e)
+    }, false)
   }
 
 
@@ -194,31 +184,31 @@ export default class Stage {
     switch (event) {
       case 'click':
         eventConst = CLICK
-        break;
+        break
 
       case 'mouseup':
         eventConst = MOUSEUP
-        break;
+        break
 
       case 'mousedown':
         eventConst = MOUSEDOWN
-        break;
+        break
 
       case 'mousemove':
         eventConst = MOUSEMOVE
-        break;
+        break
 
       case 'mouseout':
         eventConst = MOUSEOUT
-        break;
+        break
 
       case 'DOMMouseScroll':
         eventConst = MOUSESCROLL
-        break;
+        break
 
       default:
         eventConst = CLICK
-        break;
+        break
     }
 
     this.events.push(new Event2d(eventConst, callback))
@@ -258,7 +248,6 @@ export default class Stage {
     }
 
     if (!this.mousemovePointQueue.isEmpty()) {
-      console.log("1", 1);
       this.events.forEach((event: Event2d) => {
         if (event.eventType === MOUSEMOVE) {
           event.callback({
@@ -303,94 +292,39 @@ export default class Stage {
     requestAnimationFrame(frame)
   }
 
+  stageScroll(e: WheelEvent) {
+    console.log('detail', e.detail, e);
+
+    //判定鼠标指针在画布内
+    if (
+      Math.abs(e.pageX) > this.offsetX
+      && Math.abs(e.pageX) < this.offsetX + this.width
+      && Math.abs(e.pageY) > this.offsetY
+      && Math.abs(e.pageY) < this.offsetY + this.height
+    ) {
+
+      //阻止冒泡
+      e.stopPropagation()
+
+      //计算出缩放前的鼠标在场景中的 X、Y
+      const beforeX = ((e.pageX - this.offsetX) - this.translateX) / this.scale
+      const beforeY = ((e.pageY - this.offsetY) - this.translateY) / this.scale
 
 
-  //添加一个图表
-  // addChart (chart) {
-  //   chart.init(this);
-  //   this.chartList.push(chart);
-  // }
+      if (e.deltaY < 0) {
+        if (this.scale > .2) {
+          this.scale -= .1
+        }
+      } else {
+        if (this.scale < 4) {
+          this.scale += .1
+        }
+      }
 
-  // stageScroll (e) {
-  //
-  //   //判定鼠标指针在画布内
-  //   if (
-  //     Math.abs(e.pageX) > this.offsetX
-  //     && Math.abs(e.pageX) < this.offsetX + this.width
-  //     && Math.abs(e.pageY) > this.offsetY
-  //     && Math.abs(e.pageY) < this.offsetY + this.height
-  //   ) {
-  //     //阻止冒泡
-  //     e.stopPropagation()
-  //
-  //     //计算出缩放前的鼠标在场景中的 X、Y
-  //     var beforeX = ((e.pageX - this.offsetX) - this.translateX) / this.scale,
-  //     beforeY = ((e.pageY - this.offsetY) - this.translateY) / this.scale
-  //
-  //
-  //     if (e.detail > 0 || e.wheelDelta < 0) {
-  //     if (this.scale > 0.2) this.scale -= .1
-  //     } else {
-  //     if (this.scale < 4) this.scale += .1
-  //     }
-  //
-  //     this.translateX = -beforeX * this.scale + (e.pageX - this.offsetX)
-  //     this.translateY = -beforeY * this.scale + (e.pageY - this.offsetY)
-  //     }
-  //
-  //     console.log(this.scale);
-  // }
+      this.translateX = -beforeX * this.scale + (e.pageX - this.offsetX)
+      this.translateY = -beforeY * this.scale + (e.pageY - this.offsetY)
+    }
 
-
-  //背景绘制
-  // backdropPaint () {
-  //   this.chartList.forEach((chart) => {
-  //     chart.backdropPaint();
-  //   })
-  // }
-
-
-  //前景绘制
-  // foregroundPaint () {
-  //
-  //   this.chartList.forEach((chart) => {
-  //     chart.foregroundPaint()
-  //   });
-  //
-  //   //释放鼠标点击坐标点
-  //   if (!this.clickPointQueue.isEmpty()) this.clickPointQueue.dequeue()
-  //
-  //   //释放鼠标移动坐标点
-  //   if (!this.mousemovePointQueue.isEmpty()) {
-  //     this.mousemovePointQueue.dequeue()
-  //     this.chartList.forEach((chart) => {
-  //       //鼠标移到 chart 图外，清除 tip
-  //       chart.clearTip()
-  //     })
-  //   }
-  //
-  //
-  //   //DOMHighResTimeStamp 是一个double类型，用于存储时间值。该值可以是离散的时间点或两个离散时间点之间的时间差，单位为毫秒
-  //   Render((iDOMHighResTimeStamp) => {
-  //     //计算每次绘制的时间间隔
-  //     this.interval = iDOMHighResTimeStamp - lastIDOMHighResTimeStamp;
-  //     lastIDOMHighResTimeStamp = iDOMHighResTimeStamp
-  //     this.foregroundPaint();
-  //   });
-  // }
-
-  //开始绘制
-  // startPaint () {
-  //   Render((iDOMHighResTimeStamp) => {
-  //     //计算每次绘制的时间间隔
-  //     this.interval = iDOMHighResTimeStamp - lastIDOMHighResTimeStamp
-  //     lastIDOMHighResTimeStamp = iDOMHighResTimeStamp
-  //
-  //     //背景只绘制一次
-  //     this.backdropPaint();
-  //
-  //     //前景一般需要重复绘制
-  //     this.foregroundPaint();
-  //   })
-  // }
+    console.log(this.scale)
+  }
 }
