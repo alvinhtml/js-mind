@@ -39,6 +39,11 @@ export class Mind {
     height: 100
   }
 
+  rect: Space = {
+    width: 100,
+    height: 100
+  }
+
   constructor(element: HTMLDivElement | null) {
     if (element) {
       this.id = element.id || 'mind'
@@ -115,12 +120,50 @@ export class Mind {
         <path d="M599.36 764.992l127.936 128 128.064-128z" p-id="8954" fill="#707070"></path>
       </svg>
     `
-
+    // 点击下载图片
     saveImage.onclick = () => {
+      if (this.stage2d.scenes[0].canvas) {
+        const canvas = document.createElement('canvas')
+        canvas.width = this.rect.width + 200
+        canvas.height = this.rect.height + 200
+        const context = canvas.getContext('2d')
+        if (context) {
+          context.strokeStyle = '#ffffff'
+      		context.lineJoin = 'bevel'
+          context.lineCap = 'round'
+      		context.miterLimit = 1
+      		context.textAlign = 'center'
+      		context.textBaseline = 'middle'
+      		context.fillStyle = '#ffffff'
 
+          console.log("this.nodes", this.nodes);
+
+          // 求出最左节点的 x
+          const tx = this.nodes.reduce((a, b) => Math.min(a, b.x), 0)
+          // 求出最上节点的 y
+          const ty = this.nodes.reduce((a, b) => Math.min(a, b.y), 0)
+
+          // 偏移画布，并留出 100 的空白
+          context.translate(-tx + 100, -ty + 100)
+          this.paint(context)
+
+          const dataURL = canvas.toDataURL('image/png')
+
+          // 创建 a 本标签
+          const a = document.createElement('a')
+          a.setAttribute('href', dataURL)
+          a.setAttribute('download', `${this.id}.png`)
+          a.setAttribute('target', '_blank')
+
+          // 触发点击事件
+          const clickEvent = document.createEvent('MouseEvents')
+          clickEvent.initEvent('click', true, true)
+          a.dispatchEvent(clickEvent)
+        }
+      }
     }
 
-    // tools.appendChild(saveImage)
+    tools.appendChild(saveImage)
 
     // 保存JSON
     const saveJson = document.createElement('div')
@@ -287,10 +330,10 @@ export class Mind {
       }
     }
 
-    const rect = boundingClientRect(this.nodeTree, true)
+    this.rect = boundingClientRect(this.nodeTree, true)
 
     if (this.stage2d.translateX === 0 && this.stage2d.translateY === 0) {
-      this.stage2d.initTranslate(rect.width, rect.height)
+      this.stage2d.initTranslate(this.rect.width, this.rect.height)
     }
 
     /**
@@ -397,37 +440,40 @@ export class Mind {
     scene.initContext()
 
     scene.paint(() => {
+      this.paint(scene.context)
+    })
+  }
 
-      // 画节点之间的联线
-      scene.context.beginPath()
-      scene.context.moveTo(0 , 0)
-      this.nodes.forEach((node) => {
-        if (node.links.length > 0) {
-          node.links.forEach((link: Link) => {
-            this.paintLine(scene.context, link.orient, link.node, node)
-          })
-        }
-      })
-      scene.context.moveTo(0 , 0)
-      scene.context.closePath()
-      scene.context.strokeStyle = '#999'
-      scene.context.lineWidth = 1
+  paint(context: CanvasRenderingContext2D) {
+    // 画节点之间的联线
+    context.beginPath()
+    context.moveTo(0 , 0)
+    this.nodes.forEach((node) => {
+      if (node.links.length > 0) {
+        node.links.forEach((link: Link) => {
+          this.paintLine(context, link.orient, link.node, node)
+        })
+      }
+    })
+    context.moveTo(0 , 0)
+    context.closePath()
+    context.strokeStyle = '#999'
+    context.lineWidth = 1
 
-      scene.context.stroke()
+    context.stroke()
 
-      scene.context.lineWidth = 1
+    context.lineWidth = 1
 
-      // 画节点
-      this.nodes.forEach((node) => {
-        node.paint(scene.context)
-      })
+    // 画节点
+    this.nodes.forEach((node) => {
+      node.paint(context)
+    })
 
-      scene.context.fillStyle = '#333'
+    context.fillStyle = '#333'
 
-      // 名称文字
-      this.nodes.forEach((node) => {
-        node.paintTitle(scene.context)
-      })
+    // 名称文字
+    this.nodes.forEach((node) => {
+      node.paintTitle(context)
     })
   }
 

@@ -4,6 +4,7 @@ import Stage from './stage';
 export default class Scene {
   stage2d: Stage
   context: CanvasRenderingContext2D
+  canvas: HTMLCanvasElement
 
   constructor(stage2d: Stage) {
     this.stage2d = stage2d
@@ -15,6 +16,8 @@ export default class Scene {
     canvas.style.position = 'absolute'
 
     this.stage2d.container.appendChild(canvas)
+
+    this.canvas = canvas
 
 
     const context = canvas.getContext('2d')
