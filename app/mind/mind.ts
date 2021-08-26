@@ -33,6 +33,7 @@ export class Mind {
   adder: Adder
 
   selected: Node | null
+  dragged: Node | null
 
   space: Space = {
     width: 100,
@@ -69,11 +70,37 @@ export class Mind {
       if (e.target) {
         this.selected = e.target
         e.target.actived = true
-        this.adder.show(e.target.x + this.stage2d.translateX, e.target.y + this.stage2d.translateY, e.target.width, e.target.height)
+        this.adder.show(e.target.x * this.stage2d.scale + this.stage2d.translateX, e.target.y * this.stage2d.scale + this.stage2d.translateY, e.target.width * this.stage2d.scale, e.target.height * this.stage2d.scale)
       } else {
         this.selected = null
         this.adder.hide()
       }
+    })
+
+    let lastX = 0
+    let lastY = 0
+
+    this.stage2d.addEventListener('mousedown', (e: any) => {
+      if (e.target) {
+        this.dragged = e.target
+        this.stage2d.container.style.cursor = 'grab'
+        lastX = e.mouseX
+        lastY = e.mouseY
+      }
+    })
+
+    this.stage2d.addEventListener('mouseup', (e: any) => {
+      this.dragged = null
+      this.stage2d.container.style.cursor = 'auto'
+    })
+
+    this.stage2d.addEventListener('mousemove', (e: any) => {
+      if (this.dragged) {
+        this.dragged.x = this.dragged.x + (e.mouseX - lastX)
+        this.dragged.y = this.dragged.y + (e.mouseY - lastY)
+      }
+      lastX = e.mouseX
+      lastY = e.mouseY
     })
 
     this.render()
@@ -99,7 +126,10 @@ export class Mind {
       const isClear = window.confirm('你确定要清除所有节点吗？')
 
       if (isClear) {
-
+        localStorage.removeItem(`${this.id}-translateX`)
+        localStorage.removeItem(`${this.id}-translateY`)
+        localStorage.removeItem(`${this.id}-data`)
+        window.location.reload()
       } else {
 
       }
@@ -279,6 +309,7 @@ export class Mind {
   }
 
   initPosition(animate: boolean) {
+    console.time('init position time')
     const spaceWidth = 100
     const spaceHeight = 100
 
@@ -400,6 +431,8 @@ export class Mind {
     }
 
     setPosition(this.nodeTree, 0, 0, true)
+
+    console.timeEnd('init position time')
   }
 
   // 添加一个新的节点
@@ -433,6 +466,12 @@ export class Mind {
     localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
   }
 
+  resetNode() {
+    this.initNode(this.updateData())
+    this.initPosition(false)
+    localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
+  }
+
   render() {
     const scene = this.stage2d.getScene()
     scene.initContext()
@@ -456,7 +495,7 @@ export class Mind {
     context.moveTo(0 , 0)
     context.closePath()
     context.strokeStyle = '#999'
-    context.lineWidth = 1
+    // context.lineWidth = 1
 
     context.stroke()
 
@@ -584,7 +623,6 @@ export class Mind {
     this.data = update(this.data)
     return this.data
   }
-
 
   // 绑定事件
   addEventListener(event: string, callback: Function) {

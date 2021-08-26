@@ -66,6 +66,9 @@ export default class Stage {
   //事件列表
   public events: Array<Event2d>
 
+  // 响应事件的对象列表
+  public targets: Array<any> = []
+
   constructor(container: HTMLDivElement) {
     this.container = container
     this.width = container.clientWidth
@@ -139,10 +142,20 @@ export default class Stage {
   initEventListener() {
     //添加事件监听
     document.addEventListener("mouseup", (e: MouseEvent) => {
+      this.pageX = e.pageX
+      this.pageY = e.pageY
+      this.mouseX = (e.pageX - this.offsetX) * this.pixelRatio
+      this.mouseY = (e.pageY - this.offsetY) * this.pixelRatio
+
       this.mouseupPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
     }, false)
 
     this.container.addEventListener("mousedown", (e: MouseEvent) => {
+      this.pageX = e.pageX
+      this.pageY = e.pageY
+      this.mouseX = (e.pageX - this.offsetX) * this.pixelRatio
+      this.mouseY = (e.pageY - this.offsetY) * this.pixelRatio
+
       this.mousedownPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
     }, false)
 
@@ -214,72 +227,6 @@ export default class Stage {
     this.events.push(new Event2d(eventConst, callback))
   }
 
-  clearEventPoint() {
-    if (!this.mouseupPointQueue.isEmpty()) {
-      this.events.forEach((event: Event2d) => {
-        if (event.eventType === MOUSEUP) {
-          event.callback({
-            mouseX: Math.round(this.mouseX / this.pixelRatio),
-            mouseY: Math.round(this.mouseY / this.pixelRatio),
-            pageX: this.pageX,
-            pageY: this.pageY,
-            target: null
-          })
-        }
-      })
-
-      this.mouseupPointQueue.clear()
-    }
-
-    if (!this.mousedownPointQueue.isEmpty()) {
-      this.events.forEach((event: Event2d) => {
-        if (event.eventType === MOUSEDOWN) {
-          event.callback({
-            mouseX: Math.round(this.mouseX / this.pixelRatio),
-            mouseY: Math.round(this.mouseY / this.pixelRatio),
-            pageX: this.pageX,
-            pageY: this.pageY,
-            target: null
-          })
-        }
-      })
-
-      this.mousedownPointQueue.clear()
-    }
-
-    if (!this.mousemovePointQueue.isEmpty()) {
-      this.events.forEach((event: Event2d) => {
-        if (event.eventType === MOUSEMOVE) {
-          event.callback({
-            mouseX: Math.round(this.mouseX / this.pixelRatio),
-            mouseY: Math.round(this.mouseY / this.pixelRatio),
-            pageX: this.pageX,
-            pageY: this.pageY,
-            target: null
-          })
-        }
-      })
-
-      this.mousemovePointQueue.clear()
-    }
-
-    if (!this.clickPointQueue.isEmpty()) {
-      this.events.forEach((event: Event2d) => {
-        if (event.eventType === CLICK) {
-          event.callback({
-            mouseX: Math.round(this.mouseX / this.pixelRatio),
-            mouseY: Math.round(this.mouseY / this.pixelRatio),
-            pageX: this.pageX,
-            pageY: this.pageY,
-            target: null
-          })
-        }
-      })
-
-      this.clickPointQueue.clear()
-    }
-  }
-
   requestAnimationFrame() {
     const frame = (iDOMHighResTimeStamp: number) => {
 
@@ -326,5 +273,75 @@ export default class Stage {
     }
 
     console.log(this.scale)
+  }
+
+  // 将触发事件的节点 push 到 targets
+  dispatchTarget(target: any) {
+    this.targets.push(target)
+  }
+
+  // 触发事件
+  dispatchEvent() {
+    const mouse = {
+      mouseX: Math.round(this.mouseX / this.pixelRatio),
+      mouseY: Math.round(this.mouseY / this.pixelRatio),
+      pageX: this.pageX,
+      pageY: this.pageY
+    }
+
+    if (!this.mousedownPointQueue.isEmpty()) {
+      this.events.forEach((event: Event2d) => {
+        if (event.eventType === MOUSEDOWN) {
+          event.callback({
+            ...mouse,
+            target: this.targets[0]
+          })
+        }
+      })
+
+      this.mousedownPointQueue.dequeue()
+    }
+
+    if (!this.mouseupPointQueue.isEmpty()) {
+      this.events.forEach((event: Event2d) => {
+        if (event.eventType === MOUSEUP) {
+          event.callback({
+            ...mouse,
+            target: this.targets[0]
+          })
+        }
+      })
+
+      this.mouseupPointQueue.dequeue()
+    }
+
+    if (!this.mousemovePointQueue.isEmpty()) {
+      this.events.forEach((event: Event2d) => {
+        if (event.eventType === MOUSEMOVE) {
+          event.callback({
+            ...mouse,
+            target: this.targets[0]
+          })
+        }
+      })
+
+      this.mousemovePointQueue.dequeue()
+    }
+
+    if (!this.clickPointQueue.isEmpty()) {
+      this.events.forEach((event: Event2d) => {
+        if (event.eventType === CLICK) {
+          event.callback({
+            ...mouse,
+            target: this.targets[0]
+          })
+        }
+      })
+
+      this.clickPointQueue.dequeue()
+    }
+
+    // 清空列表
+    this.targets.length = 0
   }
 }

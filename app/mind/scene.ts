@@ -49,6 +49,7 @@ export default class Scene {
         //重置画布的透明度
         this.context.globalAlpha = 1
 
+        // console.time('scene paint time')
         this.context.save()
 
         //重新设定画布偏移和缩放
@@ -59,11 +60,15 @@ export default class Scene {
 
         this.context.scale(scale, scale)
 
+
         fn(this.context)
+
 
         this.context.restore()
 
-        this.stage2d.clearEventPoint()
+        this.stage2d.dispatchTarget(null)
+        this.stage2d.dispatchEvent()
+        // console.timeEnd('scene paint time')
       }
 
       //需要重复绘制的内容

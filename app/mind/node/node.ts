@@ -151,48 +151,79 @@ export default class Node {
 
   //鼠标事件检测
   triggerEvent() {
-    const events = this.stage2d.events
+    
+    this.stage2d.dispatchTarget(this)
 
-    if (events.length > 0) {
-      //遍历事件列表，以响应多个事件
-      events.forEach((event, index) => {
-        switch (event.eventType) {
-          case CLICK:
-            const clickPointQueue = this.stage2d.clickPointQueue
-
-            //如果点击事件队列不为空，执行回调，并消耗一次点击坐标
-            if (!clickPointQueue.isEmpty()) {
-              clickPointQueue.dequeue()
-              event.callback(this.getStageEvent())
-
-              // 先复原，然后播放点击动画,
-              // this.chart2d.recover()
-
-              if (this.recoverAnimateIng) {
-                this.recoverAnimateIng = false
-              } else {
-                this.clickAnimate()
-              }
-            }
-
-            break;
-
-          case MOUSEMOVE:
-            const mousemovePointQueue = this.stage2d.mousemovePointQueue
-
-            //如果点击事件队列不为空，执行回调，并消耗一次点击坐标
-            if (!mousemovePointQueue.isEmpty()) {
-              mousemovePointQueue.clear()
-              event.callback(this.getStageEvent())
-            }
-
-            break;
-
-          default:
-            break;
-        }
-      })
-    }
+    // const events = this.stage2d.events
+    //
+    //
+    // if () {
+    //
+    // }
+    //
+    //
+    //
+    //
+    //
+    //
+    // if (events.length > 0) {
+    //   //遍历事件列表，以响应多个事件
+    //   events.forEach((event, index) => {
+    //     switch (event.eventType) {
+    //       case CLICK:
+    //         const clickPointQueue = this.stage2d.clickPointQueue
+    //
+    //         //如果点击事件队列不为空，执行回调，并消耗一次点击坐标
+    //         if (!clickPointQueue.isEmpty()) {
+    //           event.callback(this.getStageEvent())
+    //
+    //           // 先复原，然后播放点击动画,
+    //           // this.chart2d.recover()
+    //
+    //           if (this.recoverAnimateIng) {
+    //             this.recoverAnimateIng = false
+    //           } else {
+    //             this.clickAnimate()
+    //           }
+    //         }
+    //
+    //         break;
+    //
+    //       case MOUSEDOWN:
+    //         const mousedownPointQueue = this.stage2d.mousedownPointQueue
+    //
+    //         //如果点击事件队列不为空，执行回调，并消耗一次点击坐标
+    //         if (!mousedownPointQueue.isEmpty()) {
+    //           event.callback(this.getStageEvent())
+    //         }
+    //
+    //         break;
+    //
+    //       case MOUSEUP:
+    //         const mouseupPointQueue = this.stage2d.mouseupPointQueue
+    //
+    //         //如果点击事件队列不为空，执行回调，并消耗一次点击坐标
+    //         if (!mouseupPointQueue.isEmpty()) {
+    //           event.callback(this.getStageEvent())
+    //         }
+    //
+    //         break;
+    //
+    //       case MOUSEMOVE:
+    //         const mousemovePointQueue = this.stage2d.mousemovePointQueue
+    //
+    //         //如果点击事件队列不为空，执行回调，并消耗一次点击坐标
+    //         if (!mousemovePointQueue.isEmpty()) {
+    //           event.callback(this.getStageEvent())
+    //         }
+    //
+    //         break;
+    //
+    //       default:
+    //         break;
+    //     }
+    //   })
+    // }
   }
 
   // 初始化节点颜色

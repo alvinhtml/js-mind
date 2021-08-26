@@ -10,34 +10,18 @@ export default class Rect extends Node {
     this.type = 'rect'
   }
 
-  //点击动画
-  clickAnimate() {
-    // //计算饼形中线弧度
-    // const radian = (this.eAngle - this.sAngle) / 2 + this.sAngle + (0.5 * Math.PI)
-    //
-    // //计算移动后的圆心坐标
-    // const x = this.x + Math.sin(radian) * 10
-    // const y = this.y - Math.cos(radian) * 10
-    //
-    // //先记录当前 shape 和圆心坐标，复原时用
-    // this.chart2d.addRecoverShapes(this, {
-    //   x: this.x,
-    //   y: this.y
-    // })
-    //
-    // //开始播放移动动画
-    // this.animate({
-    //   x,
-    //   y
-    // })
-    //
-    // this.recoverAnimateIng = true
-  }
-
   paintTitle(context: CanvasRenderingContext2D) {
     //绘制名称
     context.fillText(this.name, this.x, this.y)
   }
+
+  // 使用缓存
+  // paintCache(context: CanvasRenderingContext2D) {
+  //   if (this.cache) {
+
+  //   }
+  // }
+
   paint(context: CanvasRenderingContext2D) {
     if (this.width < 2 * this.radius) {
       this.radius = this.width / 2;

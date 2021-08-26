@@ -33,6 +33,10 @@ export default class Adder {
       e.stopPropagation()
     }
 
+    input.onmousedown = (e: MouseEvent) => {
+      e.stopPropagation()
+    }
+
     this.node.ondblclick = () => {
       this.editer.style.display = 'flex'
       this.editCallback(input)
