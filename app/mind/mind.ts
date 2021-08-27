@@ -1,8 +1,8 @@
 import Stage from "./stage"
 import Adder from "./adder"
-import { Rect, Circle, Diamond } from "./node/index"
+import { Text, Rect, Circle, Diamond } from "./node/index"
 
-type Node = Rect | Circle | Diamond
+type Node = Rect | Circle | Diamond | Text
 
 interface Link {
   orient: string
@@ -45,27 +45,81 @@ export class Mind {
     height: 100
   }
 
+  option: {[key in string]: any}
+
   constructor(element: HTMLDivElement | null) {
     if (element) {
       this.id = element.id || 'mind'
       this.stage2d = new Stage(element)
-      this.initTool(element)
 
-      const data = localStorage.getItem(`${this.id}-data`)
-      this.data = data ? JSON.parse(data) : null
+      // 初始化工具栏
+      this.initTool(element)
     }
   }
 
-  init(data: any[]) {
+  // 转化为 mind 格式的 data
+  parseData(data: any[], orient: string) {
+    const todata = (data: any[], orient: string): any[] => {
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i]
+        if (item.children) {
+          if (Array.isArray(item.children)) {
+            item.children = {
+              [orient]: todata(item.children, orient)
+            }
+          } else {
+            if (item.children.top) {
+              item.children.top = todata(item.children.top, 'top')
+            }
+            if (item.children.right) {
+              item.children.right = todata(item.children.right, 'right')
+            }
+            if (item.children.bottom) {
+              item.children.bottom = todata(item.children.bottom, 'bottom')
+            }
+            if (item.children.left) {
+              item.children.left = todata(item.children.left, 'left')
+            }
+          }
+        }
+      }
+      return data
+    }
+
+    return todata(data, orient)
+  }
+
+  initOption(option?: any) {
+    const o = option || {}
+    this.option = {
+      type: o.type || 'mind',
+      orient: o.orient || 'horizontal',
+      spaceWidth: o.spaceWidth || 120,
+      spaceHeight: o.spaceHeight || 120,
+      lineSpace: o.lineSpace || 3,
+      nodeWidth: o.nodeWidth || 100,
+      nodeHeight: o.nodeHeight || 38
+    }
+  }
+
+  init(data: any[], option?: any) {
+
+    this.initOption(option)
     this.initAdder()
 
-    if (!Array.isArray(this.data)) {
-      this.data = data
-      localStorage.setItem(`${this.id}-data`, JSON.stringify(data))
-    }
-    this.initNode(this.data)
-    this.initPosition(true)
+    // 应用缓存
+    const dataCache = localStorage.getItem(`${this.id}-data`)
 
+    if (dataCache) {
+      this.data = JSON.parse(dataCache)
+    } else {
+      this.data = this.parseData(data, this.option.orient === 'vertical' ? 'bottom' : 'left')
+    }
+
+    // 创建 node 节点
+    this.initNode(this.data)
+
+    // 添 cilck 事件，实现节点可点击选中
     this.stage2d.addEventListener('click', (e: any) => {
       if (e.target) {
         this.selected = e.target
@@ -80,6 +134,7 @@ export class Mind {
     let lastX = 0
     let lastY = 0
 
+    // 添 mousedown 事件，实现按下开始拖动节点
     this.stage2d.addEventListener('mousedown', (e: any) => {
       if (e.target) {
         this.dragged = e.target
@@ -96,8 +151,9 @@ export class Mind {
 
     this.stage2d.addEventListener('mousemove', (e: any) => {
       if (this.dragged) {
-        this.dragged.x = this.dragged.x + (e.mouseX - lastX)
-        this.dragged.y = this.dragged.y + (e.mouseY - lastY)
+        console.log("e.mouseX - lastX", e.mouseX - lastX);
+        this.dragged.x = this.dragged.x + (e.mouseX - lastX) / this.stage2d.scale
+        this.dragged.y = this.dragged.y + (e.mouseY - lastY) / this.stage2d.scale
       }
       lastX = e.mouseX
       lastY = e.mouseY
@@ -231,6 +287,8 @@ export class Mind {
         return new Circle()
       case 'diamond':
         return new Diamond()
+      case 'text':
+        return new Text()
       default:
         return new Rect()
     }
@@ -251,9 +309,32 @@ export class Mind {
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
 
-        const node = this.createNode(item.type)
+        let node
+
+        if (this.option.type === 'tree') {
+          if (item.type) {
+            node = this.createNode(item.type)
+            node.width = this.option.nodeWidth
+            node.height = this.option.nodeHeight
+          } else {
+            node = new Text()
+
+            if (item.children) {
+              node.textAlign = 'center'
+            } else {
+              node.textAlign = orient === 'left' ? 'right' : 'left'
+              node.width = 1
+              node.height = 1
+            }
+          }
+        } else {
+          node = this.createNode(item.type)
+        }
+
+
         node.stage2d = this.stage2d
         node.name = item.title
+
         if (item.color) {
           node.initColor(item.color)
         }
@@ -310,8 +391,8 @@ export class Mind {
 
   initPosition(animate: boolean) {
     console.time('init position time')
-    const spaceWidth = 100
-    const spaceHeight = 100
+    const spaceWidth = this.option.spaceWidth
+    const spaceHeight = this.option.spaceHeight
 
     /**
      * 计算每个节点和其子节点所占空间大小
@@ -328,7 +409,7 @@ export class Mind {
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
 
-        item.spaceWidth = spaceWidth
+        item.spaceWidth = Math.max(spaceWidth, item.node.width)
         item.spaceHeight = spaceHeight
 
         if (item.children) {
@@ -343,7 +424,7 @@ export class Mind {
           item.spaceHeight += Math.max(top.height + bottom.height, left.height - spaceHeight, right.height - spaceHeight)
         }
 
-        // console.log(item.node.name, item, isHorizontal);
+        console.log(item.node.name, item, isHorizontal);
 
         if (isHorizontal) {
           width += item.spaceWidth
@@ -476,6 +557,16 @@ export class Mind {
     const scene = this.stage2d.getScene()
     scene.initContext()
 
+    // 根据名称重新计算宽
+    this.nodes.forEach((node) => {
+      if(node.type === 'text' && node.textAlign === 'center') {
+        node.width = Math.min(400, Math.max(scene.context.measureText(node.name).width))
+      }
+    })
+
+    // 计算节点大小位置信息
+    this.initPosition(true)
+
     scene.paint(() => {
       this.paint(scene.context)
     })
@@ -515,7 +606,7 @@ export class Mind {
   }
 
   paintLine(context: CanvasRenderingContext2D, orient: string, node: Node, toNode: Node) {
-    const space = 2
+    const space = this.option.lineSpace
 
     if (orient === 'bottom') {
       const x1 = node.x
@@ -563,6 +654,7 @@ export class Mind {
 
     // 添加节点回调
     this.adder.onAdd((orient: any) => {
+      this.stage2d.drawing = false
       if (this.selected) {
         this.addNode(this.selected, orient, {
           title: 'new node'

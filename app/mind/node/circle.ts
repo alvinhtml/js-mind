@@ -32,7 +32,7 @@ export default class Circle extends Node {
 
     context.beginPath()
 
-    context.arc(this.x, this.y, this.width / 2, 0, 2 * Math.PI);
+    context.arc(this.x, this.y, 40, 0, 2 * Math.PI)
 
     // context.rect(this.x, this.y, this.width, this.height);
     context.closePath()
