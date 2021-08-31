@@ -138,7 +138,6 @@ export default class Node {
         //         eAngle: props[key] * 100
         //     }
         // ])
-
       }
 
       if (time < speed) {
@@ -151,7 +150,7 @@ export default class Node {
 
   //鼠标事件检测
   triggerEvent() {
-    
+
     this.stage2d.dispatchTarget(this)
 
     // const events = this.stage2d.events

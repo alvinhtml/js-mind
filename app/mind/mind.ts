@@ -314,8 +314,13 @@ export class Mind {
         if (this.option.type === 'tree') {
           if (item.type) {
             node = this.createNode(item.type)
-            node.width = this.option.nodeWidth
-            node.height = this.option.nodeHeight
+            if (node.type === 'circle') {
+              node.width = 80
+              node.height = 80
+            } else {
+              node.width = this.option.nodeWidth
+              node.height = this.option.nodeHeight
+            }
           } else {
             node = new Text()
 
