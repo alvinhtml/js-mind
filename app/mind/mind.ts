@@ -578,13 +578,15 @@ export class Mind {
   }
 
   paint(context: CanvasRenderingContext2D) {
+    const paintLine = this.option.type === 'mind' ? this.paintBrokenLine : this.paintLine
+
     // 画节点之间的联线
     context.beginPath()
     context.moveTo(0 , 0)
     this.nodes.forEach((node) => {
       if (node.links.length > 0) {
         node.links.forEach((link: Link) => {
-          this.paintLine(context, link.orient, link.node, node)
+          paintLine.call(this, context, link.orient, link.node, node)
         })
       }
     })
@@ -610,6 +612,7 @@ export class Mind {
     })
   }
 
+  // 绘制三次贝赛尔曲线
   paintLine(context: CanvasRenderingContext2D, orient: string, node: Node, toNode: Node) {
     const space = this.option.lineSpace
 
@@ -651,6 +654,59 @@ export class Mind {
 
       context.moveTo(x1, y1)
       context.bezierCurveTo(x1 + (x2 - x1) / 2, y1, x2 - (x2 - x1) / 2, y2, x2, y2)
+    }
+  }
+
+  // 绘制折线
+  paintBrokenLine(context: CanvasRenderingContext2D, orient: string, node: Node, toNode: Node) {
+    const space = this.option.lineSpace
+
+    if (orient === 'bottom') {
+      const x1 = node.x
+      const y1 = node.y + (node.height / 2) + space
+      const x2 = toNode.x
+      const y2 = toNode.y - (toNode.height / 2) - space
+
+      context.moveTo(x1, y1)
+      context.lineTo(x1, y1 + (y2 - y1) / 2)
+      context.lineTo(x2, y1 + (y2 - y1) / 2)
+      context.lineTo(x2, y2)
+    }
+
+    if (orient === 'top') {
+      const x1 = node.x
+      const y1 = node.y - (node.height / 2) - space
+      const x2 = toNode.x
+      const y2 = toNode.y + (toNode.height / 2) + space
+
+      context.moveTo(x1, y1)
+      context.lineTo(x1, y1 + (y2 - y1) / 2)
+      context.lineTo(x2, y1 + (y2 - y1) / 2)
+      context.lineTo(x2, y2)
+    }
+
+    if (orient === 'right') {
+      const x1 = node.x + (node.width / 2) + space
+      const y1 = node.y
+      const x2 = toNode.x - (toNode.width / 2) - space
+      const y2 = toNode.y
+
+      context.moveTo(x1, y1)
+      context.lineTo(x1 + (x2 - x1) / 2, y1)
+      context.lineTo(x1 + (x2 - x1) / 2, y2)
+      context.lineTo(x2, y2)
+    }
+
+    if (orient === 'left') {
+      const x1 = node.x - (node.width / 2) - space
+      const y1 = node.y
+      const x2 = toNode.x + (toNode.width / 2) + space
+      const y2 = toNode.y
+
+      context.moveTo(x1, y1)
+      context.lineTo(x1 + (x2 - x1) / 2, y1)
+      context.lineTo(x1 + (x2 - x1) / 2, y2)
+      context.lineTo(x2, y2)
     }
   }
 
