@@ -66,6 +66,8 @@ let nodes = [{
   }
 }]
 
+let nodes = [];
+
 mind.init(nodes);
 
 mind.addEventListener('click', (e: any) => {

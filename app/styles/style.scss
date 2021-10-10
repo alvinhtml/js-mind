@@ -126,3 +126,46 @@
     box-sizing: border-box;
   }
 }
+
+.toolbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 9;
+
+  ul {
+    border: 1px #ddd solid;
+    border-top: 0;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    list-style: none;
+    display: flex;
+    padding: 0 18px;
+
+    li {
+      height: 36px;
+      width: 36px;
+      text-align: center;
+      line-height: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      &.tool-item {
+        &.active, &:hover {
+          background-color: #f3f3f3;
+        }
+      }
+
+      svg {
+        z-index: 0;
+        path {
+          fill: #888;
+        }
+      }
+    }
+  }
+}

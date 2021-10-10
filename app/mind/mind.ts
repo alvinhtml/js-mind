@@ -1,5 +1,6 @@
 import Stage from "./stage"
 import Adder from "./adder"
+import Toolbar from "./toolbar"
 import { Text, Rect, Circle, Diamond } from "./node/index"
 
 type Node = Rect | Circle | Diamond | Text
@@ -100,6 +101,11 @@ export class Mind {
       nodeWidth: o.nodeWidth || 100,
       nodeHeight: o.nodeHeight || 38
     }
+
+    if (this.option.type === 'mind') {
+      this.initToolbar()
+    }
+
   }
 
   init(data: any[], option?: any) {
@@ -277,6 +283,11 @@ export class Mind {
     }
 
     tools.appendChild(saveJson)
+  }
+
+  initToolbar() {
+    const toolbar = Toolbar.init(this.stage2d.container)
+    
   }
 
   createNode(type: string): Node {
