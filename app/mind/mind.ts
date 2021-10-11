@@ -1,6 +1,6 @@
 import Stage from "./stage"
 import Adder from "./adder"
-import Toolbar from "./toolbar"
+import Toolbar, { ToolEvent } from "./toolbar"
 import { Text, Rect, Circle, Diamond } from "./node/index"
 
 type Node = Rect | Circle | Diamond | Text
@@ -185,16 +185,7 @@ export class Mind {
     `
 
     clearNode.onclick = () => {
-      const isClear = window.confirm('你确定要清除所有节点吗？')
 
-      if (isClear) {
-        localStorage.removeItem(`${this.id}-translateX`)
-        localStorage.removeItem(`${this.id}-translateY`)
-        localStorage.removeItem(`${this.id}-data`)
-        window.location.reload()
-      } else {
-
-      }
     }
 
     tools.appendChild(clearNode)
@@ -287,7 +278,41 @@ export class Mind {
 
   initToolbar() {
     const toolbar = Toolbar.init(this.stage2d.container)
-    
+
+    // 绑定点击事件
+    toolbar.onClick((e: ToolEvent) => {
+      switch (e.type) {
+
+        // 清除缓存节点
+        case 'clear':
+          this.clearNode()
+          break;
+
+        // 放大
+        case 'zoom-in':
+          this.setZoom(false, toolbar)
+          break;
+
+        // 缩小
+        case 'zoom-out':
+          this.setZoom(true, toolbar)
+          break;
+
+        // 缩小
+        case 'save-to-image':
+          this.saveImage()
+          break;
+
+        default:
+          break;
+      }
+    })
+
+    this.stage2d.addEventListener('mousewheel', (e: any) => {
+      toolbar.setZoomText(Math.round(e.target.scale * 100))
+    })
+
+    toolbar.setZoomText(Math.round(this.stage2d.scale * 100))
   }
 
   createNode(type: string): Node {
@@ -561,6 +586,67 @@ export class Mind {
     this.initNode(this.updateData())
     this.initPosition(false)
     localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
+  }
+
+  clearNode() {
+    const isClear = window.confirm('你确定要清除已缓存的节点吗？')
+
+    if (isClear) {
+      localStorage.removeItem(`${this.id}-translateX`)
+      localStorage.removeItem(`${this.id}-translateY`)
+      localStorage.removeItem(`${this.id}-data`)
+      window.location.reload()
+    }
+  }
+
+  setZoom(isOut: boolean, toolbar: Toolbar) {
+    if (isOut) {
+      this.stage2d.setScale(this.stage2d.scale - .05)
+    } else {
+      this.stage2d.setScale(this.stage2d.scale + .05)
+    }
+
+    toolbar.setZoomText(Math.round(this.stage2d.scale * 100))
+  }
+
+  saveImage() {
+    if (this.stage2d.scenes[0].canvas) {
+      const canvas = document.createElement('canvas')
+      canvas.width = this.rect.width + 200
+      canvas.height = this.rect.height + 200
+      const context = canvas.getContext('2d')
+      if (context) {
+        context.strokeStyle = '#ffffff'
+        context.lineJoin = 'bevel'
+        context.lineCap = 'round'
+        context.miterLimit = 1
+        context.textAlign = 'center'
+        context.textBaseline = 'middle'
+        context.fillStyle = '#ffffff'
+
+        // 求出最左节点的 x
+        const tx = this.nodes.reduce((a, b) => Math.min(a, b.x), 0)
+        // 求出最上节点的 y
+        const ty = this.nodes.reduce((a, b) => Math.min(a, b.y), 0)
+
+        // 偏移画布，并留出 100 的空白
+        context.translate(-tx + 100, -ty + 100)
+        this.paint(context)
+
+        const dataURL = canvas.toDataURL('image/png')
+
+        // 创建 a 本标签
+        const a = document.createElement('a')
+        a.setAttribute('href', dataURL)
+        a.setAttribute('download', `${this.id}.png`)
+        a.setAttribute('target', '_blank')
+
+        // 触发点击事件
+        const clickEvent = document.createEvent('MouseEvents')
+        clickEvent.initEvent('click', true, true)
+        a.dispatchEvent(clickEvent)
+      }
+    }
   }
 
   resetNode() {

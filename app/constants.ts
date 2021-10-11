@@ -14,4 +14,4 @@ export const MOUSEOUT = Symbol('mouseout')
 export const MOUSEUP = Symbol('mouseup')
 
 //鼠标松开事件
-export const MOUSESCROLL = Symbol('mousescroll')
+export const MOUSEWHEEL = Symbol('mousewheel')

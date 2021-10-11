@@ -2,7 +2,7 @@ import Queue from './queue'
 import Scene from './scene'
 import Point from './point'
 import Event2d from './event'
-import { CLICK, MOUSEUP, MOUSEDOWN, MOUSEMOVE, MOUSEOUT, MOUSESCROLL } from '../constants'
+import { CLICK, MOUSEUP, MOUSEDOWN, MOUSEMOVE, MOUSEOUT, MOUSEWHEEL } from '../constants'
 
 import { getPixelRatio } from '../utils/tool'
 
@@ -215,8 +215,8 @@ export default class Stage {
         eventConst = MOUSEOUT
         break
 
-      case 'DOMMouseScroll':
-        eventConst = MOUSESCROLL
+      case 'mousewheel':
+        eventConst = MOUSEWHEEL
         break
 
       default:
@@ -237,6 +237,10 @@ export default class Stage {
       requestAnimationFrame(frame)
     }
     requestAnimationFrame(frame)
+  }
+
+  setScale(scale: number) {
+    this.scale = scale
   }
 
   stageScroll(e: WheelEvent) {
@@ -260,11 +264,11 @@ export default class Stage {
 
       if (e.deltaY < 0) {
         if (this.scale > .2) {
-          this.scale -= .1
+          this.scale -= .05
         }
       } else {
         if (this.scale < 4) {
-          this.scale += .1
+          this.scale += .05
         }
       }
 
@@ -272,7 +276,13 @@ export default class Stage {
       this.translateY = -beforeY * this.scale + (e.pageY - this.offsetY)
     }
 
-    console.log(this.scale)
+    this.events.forEach((e: Event2d) => {
+      if (e.eventType === MOUSEWHEEL) {
+        e.callback({
+          target: this
+        })
+      }
+    })
   }
 
   // 将触发事件的节点 push 到 targets

@@ -1,7 +1,7 @@
 import Stage from "../stage"
 import { lighten, darken, alpha } from '../../utils/tool'
 
-import { CLICK, MOUSEUP, MOUSEDOWN, MOUSEMOVE, MOUSESCROLL } from '../../constants'
+import { CLICK, MOUSEUP, MOUSEDOWN, MOUSEMOVE, MOUSEWHEEL } from '../../constants'
 
 interface ChartEvent {
   mouseX: number
