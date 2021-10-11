@@ -16,6 +16,7 @@ export default class Adder {
     // 添加四个方向的 handle
     orientArray.forEach((item: string) => {
       const handle = document.createElement('div')
+      handle.title = '点击添加子节点'
       handle.classList.add('adder-handle', `handle-${item}`)
 
       handle.onclick = () => {

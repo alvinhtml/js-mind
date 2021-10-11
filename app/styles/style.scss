@@ -33,6 +33,20 @@
       left: 50%;
       margin-left: -4px;
     }
+
+    &:hover::after {
+      content: attr(title);
+      position: absolute;
+      top: 110%;
+      left: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: .5em 1em;
+      color: #fff;
+      font-size: 12px;
+      white-space: nowrap;
+      border-radius: 4px;
+      z-index: 99;
+    }
   }
 }
 
@@ -141,14 +155,26 @@
 
       &.tool-item {
         &.active, &:hover {
-          background-color: #f3f3f3;
+          // background-color: #f3f3f3;
+          svg {
+            path {
+              fill: #888;
+            }
+          }
+        }
+        &.enabled {
+          svg {
+            path {
+              fill: #888;
+            }
+          }
         }
       }
 
       svg {
         z-index: 0;
         path {
-          fill: #888;
+          fill: #ddd;
         }
       }
 

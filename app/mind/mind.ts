@@ -32,6 +32,7 @@ export class Mind {
   nodeTree: any[] = []
 
   adder: Adder
+  toolbar: Toolbar
 
   selected: Node | null
   dragged: Node | null
@@ -126,10 +127,12 @@ export class Mind {
     this.stage2d.addEventListener('click', (e: any) => {
       if (e.target) {
         this.selected = e.target
+        this.toolbar.enableDeleteNode()
         e.target.actived = true
         this.adder.show(e.target.x * this.stage2d.scale + this.stage2d.translateX, e.target.y * this.stage2d.scale + this.stage2d.translateY, e.target.width * this.stage2d.scale, e.target.height * this.stage2d.scale)
       } else {
         this.selected = null
+        this.toolbar.disableDeleteNode()
         this.adder.hide()
       }
     })
@@ -192,9 +195,18 @@ export class Mind {
           this.saveImage()
           break;
 
-        // 缩小
+        // 复制JSON
         case 'copy-json':
           this.saveJson()
+          break;
+
+        // 删除节点
+        case 'delete':
+          if (this.selected) {
+            this.deleteNode(this.selected)
+            this.adder.hide()
+            this.toolbar.disableDeleteNode()
+          }
           break;
 
         default:
@@ -207,6 +219,8 @@ export class Mind {
     })
 
     toolbar.setZoomText(Math.round(this.stage2d.scale * 100))
+
+    this.toolbar = toolbar
   }
 
   createNode(type: string): Node {
