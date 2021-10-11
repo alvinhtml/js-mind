@@ -53,23 +53,6 @@
   }
 }
 
-.js-mind-tools {
-  position: absolute;
-  right: 0px;
-  top: 4px;
-  z-index: 9;
-
-  .js-mind-tool-button {
-    cursor: pointer;
-    margin-right: 8px;
-    display: inline-block;
-
-    &:hover {
-      opacity: 0.8
-    }
-  }
-}
-
 .js-mind-dialog {
   display: block;
   position: fixed;
@@ -135,6 +118,7 @@
   display: flex;
   justify-content: center;
   z-index: 9;
+  user-select: none;
 
   ul {
     border: 1px #ddd solid;
@@ -153,6 +137,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      position: relative;
 
       &.tool-item {
         &.active, &:hover {
@@ -165,6 +150,19 @@
         path {
           fill: #888;
         }
+      }
+
+      &.tool-item:hover::after {
+        content: attr(title);
+        position: absolute;
+        top: 110%;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 0 1em;
+        color: #fff;
+        font-size: 12px;
+        white-space: nowrap;
+        border-radius: 4px;
       }
     }
 
