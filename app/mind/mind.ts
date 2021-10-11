@@ -298,9 +298,14 @@ export class Mind {
           this.setZoom(true, toolbar)
           break;
 
-        // 缩小
+        // 保存图片
         case 'save-to-image':
           this.saveImage()
+          break;
+
+        // 缩小
+        case 'copy-json':
+          this.saveJson()
           break;
 
         default:
@@ -645,6 +650,26 @@ export class Mind {
         const clickEvent = document.createEvent('MouseEvents')
         clickEvent.initEvent('click', true, true)
         a.dispatchEvent(clickEvent)
+      }
+    }
+  }
+
+  saveJson() {
+    const json = this.toJsonString()
+    const dialog = document.createElement('div')
+    dialog.classList.add('js-mind-dialog')
+    dialog.innerHTML = `
+      <div class="mind-dialog-header">
+        <h3>Json Data</h3>
+        <div class="mind-dialog-close">×</div>
+      </div>
+      <div class="mind-dialog-body"><pre>${json}</pre></div>
+    `
+    document.body.appendChild(dialog)
+    const closeElement = dialog.querySelector('.mind-dialog-close')
+    if (closeElement) {
+      (closeElement as HTMLDivElement).onclick = () => {
+        document.body.removeChild(dialog)
       }
     }
   }
