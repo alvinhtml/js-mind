@@ -190,11 +190,41 @@
         white-space: nowrap;
         border-radius: 4px;
       }
+
+      &.opened {
+        .pick-color {
+          display: block;
+        }
+      }
     }
 
     .zoom-texter {
       font-size: 12px;
       padding: 0 .5em;
+    }
+
+    .pick-color {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      padding: 5px;
+
+      div {
+        display: flex;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        padding: 6px;
+
+        span {
+          display: block;
+          width: 16px;
+          height: 16px;
+          margin: 1px;
+          border-radius: 3px;
+        }
+      }
     }
   }
 }

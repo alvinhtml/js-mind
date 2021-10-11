@@ -220,6 +220,15 @@ export class Mind {
 
     toolbar.setZoomText(Math.round(this.stage2d.scale * 100))
 
+    // 修改颜色
+    toolbar.onFill((color: string) => {
+      if (this.selected) {
+        console.log("this.selected, color", this.selected, color);
+        this.setColor(this.selected, color)
+      }
+    })
+
+
     this.toolbar = toolbar
   }
 
@@ -484,6 +493,13 @@ export class Mind {
 
   editNode(node: Node, title: string) {
     node.datahandle.title = title
+    this.initNode(this.updateData())
+    this.initPosition(false)
+    localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
+  }
+
+  setColor(node: Node, color: string) {
+    node.datahandle.color = color
     this.initNode(this.updateData())
     this.initPosition(false)
     localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))

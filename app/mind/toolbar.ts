@@ -7,18 +7,35 @@ export interface ToolEvent {
   type: string
 }
 
+const colors = ['#f2711c', '#2185d0', '#21ba45', '#b5cc18', '#00b5ad', '#fbbd08', '#6435c9', '#a333c8', '#e03997', '#a5673f']
+
 export default class Toolbar {
 
   bar: HTMLDivElement
+
+  // 点击回调
   callback: Function = () => {}
+
+  // 拖动回调
   dragend: Function = (event: DragEvent) => {}
+
+  // 填充颜色回调
+  filled: Function = (color: string) => {}
+
+  // 缩放百分比显示
   zoomTexter: HTMLElement
+
+  // 删除节点按钮
   deleteNode: HTMLElement
+
+  // 填充颜色按钮
+  fillStyle: HTMLElement
 
   constructor(element: HTMLDivElement) {
     this.bar = element
     this.zoomTexter = element.querySelector('#zoomTexter') || document.createElement('li')
     this.deleteNode = element.querySelector('#deleteNode') || document.createElement('li')
+    this.fillStyle = element.querySelector('#fillStyle') || document.createElement('li')
 
     // 拖动结束事件
     document.addEventListener('dragend', (event: DragEvent) => {
@@ -27,7 +44,6 @@ export default class Toolbar {
 
     // 点击事件代理
     element.onclick = (event: EventAgent) => {
-      console.log("event", event);
 
       // 通过 path 找到触发事件的 li 元素
       const toolItem = event.path.find((item: HTMLElement) => {
@@ -36,20 +52,46 @@ export default class Toolbar {
         }
       })
 
-      console.log("toolItem", toolItem);
+      // 打开和关闭颜色选择器
+      if (toolItem && toolItem.dataset.type === 'pick-color') {
+        if (toolItem.className.indexOf('opened') !== -1) {
+          toolItem.classList.remove('opened')
+        } else {
+          toolItem.classList.add('opened')
+        }
+        event.stopPropagation()
+      }
 
+      // 执行点击事件回调
       if (toolItem && this.callback) {
-        console.log({
-          target: toolItem,
-          type: toolItem.dataset.type
-        })
-
         this.callback({
           target: toolItem,
           type: toolItem.dataset.type
         })
       }
     }
+
+
+    const pickColor: null | HTMLDivElement = this.fillStyle.querySelector('#pickColor')
+
+    if (pickColor) {
+      const fillhtml = colors.map(color => {
+        return `<span style="background-color: ${color}" data-color="${color}"></span>`
+      }).join('')
+
+      pickColor.innerHTML = `<div>${fillhtml}</div>`
+
+      pickColor.onclick = (e) => {
+        e.stopPropagation()
+        if (e.target instanceof HTMLElement && e.target.localName === 'span') {
+          this.filled(e.target.dataset.color)
+        }
+      }
+    }
+
+    document.addEventListener('click', () => {
+      this.fillStyle.classList.remove('opened')
+    })
   }
 
   onClick(callback: Function) {
@@ -60,16 +102,22 @@ export default class Toolbar {
     this.dragend = callback
   }
 
+  onFill(callback: Function) {
+    this.filled = callback
+  }
+
   setZoomText(text: number) {
     this.zoomTexter.textContent = text + '%'
   }
 
   enableDeleteNode() {
     this.deleteNode.classList.add('enabled')
+    this.fillStyle.classList.add('enabled')
   }
 
   disableDeleteNode() {
     this.deleteNode.classList.remove('enabled')
+    this.fillStyle.classList.remove('enabled')
   }
 
 
@@ -100,6 +148,10 @@ export default class Toolbar {
           </li>
           <li class="tool-item item-node" data-type="rect" draggable="true">
             <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M896.2 789H127.8c-29.5 0-48.8-30.9-36-57.4l230-474c6.7-13.8 20.7-22.5 36-22.5h308.3c15.3 0 29.3 8.7 36 22.5l230 474c12.9 26.5-6.4 57.4-35.9 57.4z"></path></svg>
+          </li>
+          <li id="fillStyle" class="tool-item" data-type="pick-color">
+            <svg t="1633939528449" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3843" width="26" height="26"><path d="M204.4 524.9c-14.5 1.5-26.2 13.2-27.7 27.7-2.1 19.9 14.6 36.7 34.6 34.6 14.5-1.5 26.2-13.2 27.8-27.8 2-19.9-14.8-36.6-34.7-34.5zM265.4 473.7c21.8-1.9 39.4-19.5 41.4-41.4 2.5-28.5-21.2-52.3-49.7-49.7-21.8 1.9-39.4 19.5-41.4 41.4-2.6 28.4 21.2 52.2 49.7 49.7zM415.8 266.9c-28.5 1.8-51.6 24.9-53.4 53.4-2.2 34.5 26.4 63.1 60.9 60.9 28.5-1.8 51.6-24.9 53.4-53.4 2.1-34.6-26.4-63.1-60.9-60.9zM621.9 253.8c-35.1 2.2-63.4 30.6-65.6 65.6-2.7 42.4 32.4 77.6 74.8 74.8 35.1-2.2 63.4-30.6 65.6-65.6 2.8-42.4-32.3-77.5-74.8-74.8zM966.5 276.4c-0.5-7.6-4-14.6-9.8-19.6l-0.7-0.6c-5.2-4.5-11.9-7-18.8-7-8.3 0-16.2 3.6-21.6 9.9L574 652.4l-43.5 85.5 1.1 0.9-4.9 11.3 11.1-5.9 1.5 1.3 78-54.3 342.3-394c5-5.8 7.4-13.2 6.9-20.8z" p-id="3844"></path><path d="M897.8 476.3c-13.8-1.4-26.7 7.4-30.4 20.7-6.9 24.6-19.3 64.5-35.1 97.8C809.5 643 767.4 710.1 696.7 756c-72.2 46.9-142.7 56.7-189.2 56.7-37 0-72.2-6.1-101.7-17.7-26.9-10.5-46.4-24.6-54.9-39.7-3.4-6.1-7.2-12.9-11.2-20.2-17.2-31.1-36.6-66.5-49.7-77.4-15.9-13.2-39.1-15-59.8-15-8.1 0-40.8 1.3-48.5 1.3-33.1 0-49.4-6.5-56.1-22.4-17.8-42.3-7.3-114.3 26.8-183.4C205.2 331.4 300 253.3 412.6 224c40-10.6 81.2-18.9 121.3-18.9 85.6 0 187.8 32.8 252.5 77.2 11.4 7.8 26.9 5.8 35.7-4.9 10.4-12.6 7.1-31.4-6.8-39.8-23.3-14-57.9-34-86.3-47.1-60.3-27.9-123.7-41.9-189.2-41.9-68.1 0-148.8 16.4-217.2 47.2-78.1 35-135.2 85-179.4 147.5-36.4 51.4-67.8 111.1-80.1 168.7-7.5 35.1-6.8 57.4-2.4 87.8 4.2 29.2 13.4 52.5 26.9 67.5 22.4 25.1 51.5 37.4 89 37.4 13.9 0 56.3-5 63.1-5 7.4 0 12.2 1.2 14.4 3.8 6.4 7.4 14.4 22.4 23.7 39.9 7.5 14.1 15.9 30.1 25.4 45.3 12.1 19.5 36.9 40.4 66.5 55.9 27 14.1 71.9 31 132.2 31 72 0 148.3-23.6 226.7-70.1 74.9-44.4 123-118.9 150.2-173.6 19-38.3 34.7-87.2 43.8-119.1 4.8-17.3-7-34.7-24.8-36.5z" p-id="3845"></path></svg>
+            <div id="pickColor" class="pick-color"></div>
           </li>
           <li></li>
           <li class="tool-item enabled" data-type="zoom-out" title="缩小">
