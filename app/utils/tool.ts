@@ -14,7 +14,7 @@ function hexToRgb(hex: string) {
 export function lighten(hex: string, value: number = 10): string {
   let rgb = hexToRgb(hex)
   let arr = rgb.map((v) => {
-    return Math.min(v + value, 255)
+    return Math.min(v + (255 - v) * (value / 100), 255)
   })
   return rgbToHex(arr[0], arr[1], arr[2])
 }

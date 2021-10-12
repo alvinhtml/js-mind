@@ -29,9 +29,9 @@ interface Indexed {
 
 type Values<T> = T[keyof T]
 
-const pattern = '#2185d0'
-const mouseOverPattern = lighten('#2185d0', 100)
-const areaPattern = lighten('#2185d0', 120)
+const pattern = '#7396bf'
+const mouseOverPattern = lighten('#7396bf')
+const areaPattern = lighten('#7396bf', 90)
 
 export default class Node {
   stage2d: Stage
@@ -74,7 +74,7 @@ export default class Node {
   datahandle: any
 
   constructor() {
-
+    this.initColor('#7396bf')
   }
 
   clickAnimate() {
@@ -230,7 +230,7 @@ export default class Node {
     if (/^#([a-fA-F\d]{6}|[a-fA-F\d]{3})$/.test(hex)) {
       this.pattern = hex
       this.mouseOverPattern = lighten(hex)
-      this.areaPattern = lighten(hex, 50)
+      this.areaPattern = lighten(hex, 90)
     } else {
       console.error('Only hex colors are supported')
     }

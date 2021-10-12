@@ -141,7 +141,7 @@ export default class Stage {
   //初始化事件监听
   initEventListener() {
     //添加事件监听
-    document.addEventListener("mouseup", (e: MouseEvent) => {
+    document.addEventListener('mouseup', (e: MouseEvent) => {
       this.pageX = e.pageX
       this.pageY = e.pageY
       this.mouseX = (e.pageX - this.offsetX) * this.pixelRatio
@@ -150,7 +150,7 @@ export default class Stage {
       this.mouseupPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
     }, false)
 
-    this.container.addEventListener("mousedown", (e: MouseEvent) => {
+    this.container.addEventListener('mousedown', (e: MouseEvent) => {
       this.pageX = e.pageX
       this.pageY = e.pageY
       this.mouseX = (e.pageX - this.offsetX) * this.pixelRatio
@@ -159,17 +159,30 @@ export default class Stage {
       this.mousedownPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
     }, false)
 
-    this.container.addEventListener("click", (e: MouseEvent) => {
+    this.container.addEventListener('click', (e: MouseEvent) => {
       this.clickPointQueue.enqueue(new Point(this.mouseX, this.mouseY))
     }, false)
 
-    this.container.addEventListener("mousemove", (e: MouseEvent) => {
+    this.container.addEventListener('mousemove', (e: MouseEvent) => {
       this.pageX = e.pageX
       this.pageY = e.pageY
       this.mouseX = (e.pageX - this.offsetX) * this.pixelRatio
       this.mouseY = (e.pageY - this.offsetY) * this.pixelRatio
 
       this.mousemovePointQueue.enqueue(new Point(this.mouseX, this.mouseY))
+    }, false)
+
+    // 拖动事件
+    document.addEventListener('drag', (e: DragEvent) => {
+      if (e.pageX !== 0) {
+        this.pageX = e.pageX
+        this.pageY = e.pageY
+        this.mouseX = (e.pageX - this.offsetX) * this.pixelRatio
+        this.mouseY = (e.pageY - this.offsetY) * this.pixelRatio
+
+        // 当拖动的时候，使用 drag 事件代替 mouseover 事件
+        this.mousemovePointQueue.enqueue(new Point(this.mouseX, this.mouseY))
+      }
     }, false)
 
     //缩放事件
@@ -335,7 +348,7 @@ export default class Stage {
         }
       })
 
-      this.mousemovePointQueue.dequeue()
+      this.mousemovePointQueue.clear()
     }
 
     if (!this.clickPointQueue.isEmpty()) {

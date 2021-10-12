@@ -157,7 +157,6 @@ export class Mind {
 
     this.stage2d.addEventListener('mousemove', (e: any) => {
       if (this.dragged) {
-        console.log("e.mouseX - lastX", e.mouseX - lastX);
         this.dragged.x = this.dragged.x + (e.mouseX - lastX) / this.stage2d.scale
         this.dragged.y = this.dragged.y + (e.mouseY - lastY) / this.stage2d.scale
       }
@@ -211,6 +210,41 @@ export class Mind {
 
         default:
           break;
+      }
+    })
+
+    // 绑定拖动事件
+    toolbar.onDrag((type: string) => {
+      if (!this.dragged) {
+
+        // 添加一个根节点
+        this.data.push({
+          title: 'new node',
+          type
+        })
+
+        // 初始化节点数据
+        this.initNode(this.updateData())
+        this.initPosition(false)
+        localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
+
+        // 将新加入的这个节点，设置为当前正在拖动的节点
+        this.dragged = this.nodeTree[this.nodeTree.length - 1].node
+        this.stage2d.container.style.cursor = 'grab'
+
+        if (this.dragged) {
+          this.dragged.x = (this.stage2d.mouseX / this.stage2d.pixelRatio) - this.stage2d.translateX
+          this.dragged.y = (this.stage2d.mouseY / this.stage2d.pixelRatio) - this.stage2d.translateY
+        }
+      }
+    })
+
+    // 绑定拖动结束事件
+    toolbar.onDragend(() => {
+      if (this.dragged) {
+        // 拖动结束，释放节点
+        this.dragged = null
+        this.stage2d.container.style.cursor = 'auto'
       }
     })
 
@@ -638,7 +672,7 @@ export class Mind {
 
     context.stroke()
 
-    context.lineWidth = 1
+    context.lineWidth = 2
 
     // 画节点
     this.nodes.forEach((node) => {
@@ -813,6 +847,8 @@ export class Mind {
 
       return arr
     }
+
+    console.log("this.data", this.data);
 
     this.data = update(this.data)
     return this.data

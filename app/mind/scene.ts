@@ -34,6 +34,9 @@ export default class Scene {
 		this.context.textAlign = 'center'
 		this.context.textBaseline = 'middle'
 		this.context.fillStyle = '#ffffff'
+		this.context.lineWidth = 2
+		this.context.font = '14px Tahoma, Geneva, sans-serif'
+
   }
 
   paint(fn: Function) {
