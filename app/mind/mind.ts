@@ -15,6 +15,32 @@ interface Space {
   height: number
 }
 
+interface Item {
+  title: string
+  type?: string
+  color?: string
+  width?: number
+  height?: number
+  children?: {
+    left?: Array<Item>
+    top?: Array<Item>
+    right?: Array<Item>
+    bottom?: Array<Item>
+  }
+}
+
+interface TreeItem {
+  node: Node
+  spaceHeight: number
+  spaceWidth: number
+  children?: {
+    left: Array<TreeItem>
+    top: Array<TreeItem>
+    right: Array<TreeItem>
+    bottom: Array<TreeItem>
+  }
+}
+
 export class Mind {
 
   id: string = 'mind'
@@ -29,18 +55,16 @@ export class Mind {
 
   data: any | null = []
 
-  nodeTree: any[] = []
+  nodeTree: TreeItem[] = []
 
   adder: Adder
   toolbar: Toolbar
 
+  // 当前选中的节点
   selected: Node | null
-  dragged: Node | null
 
-  space: Space = {
-    width: 100,
-    height: 100
-  }
+  // 当前拖动的节点
+  dragged: Node | null
 
   rect: Space = {
     width: 100,
@@ -57,8 +81,8 @@ export class Mind {
   }
 
   // 转化为 mind 格式的 data
-  parseData(data: any[], orient: string) {
-    const todata = (data: any[], orient: string): any[] => {
+  parseData(data: any[], orient: string): Item[] {
+    const todata = (data: any[], orient: string): Item[] => {
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
         if (item.children) {
@@ -93,7 +117,7 @@ export class Mind {
     this.option = {
       type: o.type || 'mind',
       orient: o.orient || 'horizontal',
-      spaceWidth: o.spaceWidth || 120,
+      spaceWidth: o.spaceWidth || 150,
       spaceHeight: o.spaceHeight || 120,
       lineSpace: o.lineSpace || 3,
       nodeWidth: o.nodeWidth || 100,
@@ -129,7 +153,11 @@ export class Mind {
         this.selected = e.target
         this.toolbar.enableDeleteNode()
         e.target.actived = true
-        this.adder.show(e.target.x * this.stage2d.scale + this.stage2d.translateX, e.target.y * this.stage2d.scale + this.stage2d.translateY, e.target.width * this.stage2d.scale, e.target.height * this.stage2d.scale)
+        this.adder.show(
+          e.target.x * this.stage2d.scale + this.stage2d.translateX,
+          e.target.y * this.stage2d.scale + this.stage2d.translateY,
+          e.target.width * this.stage2d.scale, e.target.height * this.stage2d.scale
+        )
       } else {
         this.selected = null
         this.toolbar.disableDeleteNode()
@@ -224,9 +252,7 @@ export class Mind {
         })
 
         // 初始化节点数据
-        this.initNode(this.updateData())
-        this.initPosition(false)
-        localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
+        this.resetAndCache()
 
         // 将新加入的这个节点，设置为当前正在拖动的节点
         this.dragged = this.nodeTree[this.nodeTree.length - 1].node
@@ -266,119 +292,121 @@ export class Mind {
     this.toolbar = toolbar
   }
 
-  createNode(type: string): Node {
+  createNode(type: string, item: Item): Node {
+    let node
+
+    // 根据类型创建 Node
     switch (type) {
-      case 'rect':
-        return new Rect()
       case 'circle':
-        return new Circle()
+        node = new Circle()
+        node.width = item.width ? item.width : this.option.nodeWidth * .8
+        break
       case 'diamond':
-        return new Diamond()
+        node = new Diamond()
+        node.width = item.width ? item.width : this.option.nodeWidth * 1.2
+        node.height = item.height ? item.height : this.option.nodeHeight * 1.2
+        break
       case 'text':
-        return new Text()
+        node = new Text()
+        if (item.children) {
+          node.textAlign = 'center'
+        } else {
+          // node.textAlign = orient === 'left' ? 'right' : 'left'
+          node.width = 1
+          node.height = 1
+        }
+        break
       default:
-        return new Rect()
+        node = new Rect()
+        node.width = item.width ? item.width : this.option.nodeWidth
+        node.height = item.height ? item.height : this.option.nodeHeight
+        break
     }
+
+    node.name = item.title
+    node.stage2d = this.stage2d
+
+    if (item.color) {
+      node.initColor(item.color)
+    }
+
+    node.datahandle = item
+
+    return node
   }
 
-  initNode(data: any[]) {
+  initNode(data: Item[]) {
     this.nodes = []
 
     // 解析 json data, 并创建对应的节点
-    const parse = (data: any[], parent: null | Node, orient: string): any[] => {
+    this.nodeTree = this.parse(data, null, '');
+  }
 
-      if (!data || data.length <= 0) {
-        return []
-      }
+  parse(data: Item[] | undefined, parent: null | Node, orient: string): TreeItem[] {
 
-      const nodes = []
-
-      for (let i = 0; i < data.length; i++) {
-        const item = data[i]
-
-        let node
-
-        if (this.option.type === 'tree') {
-          if (item.type) {
-            node = this.createNode(item.type)
-            if (node.type === 'circle') {
-              node.width = 80
-              node.height = 80
-            } else {
-              node.width = this.option.nodeWidth
-              node.height = this.option.nodeHeight
-            }
-          } else {
-            node = new Text()
-
-            if (item.children) {
-              node.textAlign = 'center'
-            } else {
-              node.textAlign = orient === 'left' ? 'right' : 'left'
-              node.width = 1
-              node.height = 1
-            }
-          }
-        } else {
-          node = this.createNode(item.type)
-        }
-
-
-        node.stage2d = this.stage2d
-        node.name = item.title
-
-        if (item.color) {
-          node.initColor(item.color)
-        }
-        node.datahandle = item
-
-        this.nodes.push(node)
-
-        if (parent) {
-          node.links.push({
-            orient,
-            node: parent
-          })
-        }
-
-        let top
-        let right
-        let bottom
-        let left
-
-        if (item.children) {
-          top = parse(item.children.top, node, 'top')
-          right = parse(item.children.right, node, 'right')
-          bottom = parse(item.children.bottom, node, 'bottom')
-          left = parse(item.children.left, node, 'left')
-        }
-
-        const nodeObject = {
-          node,
-          spaceWidth: 0,
-          spaceHeight: 0
-        }
-
-        if (left || right || top || bottom) {
-          Object.defineProperty(nodeObject, 'children', {
-            enumerable: true,
-            writable: true,
-            configurable: true,
-            value: {
-              top,
-              right,
-              bottom,
-              left
-            }
-          })
-        }
-
-        nodes.push(nodeObject)
-      }
-      return nodes
+    if (!data || data.length <= 0) {
+      return []
     }
 
-    this.nodeTree = parse(data, null, '')
+    const nodes = []
+
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i]
+
+      let type
+
+      if (this.option.type === 'tree') {
+        type = item.type ? item.type : 'text'
+      } else {
+        type = item.type ? item.type : 'rect'
+      }
+
+      const node = this.createNode(type, item)
+
+      this.nodes.push(node)
+
+      if (parent) {
+        node.links.push({
+          orient: orient,
+          node: parent
+        })
+      }
+
+      let top
+      let right
+      let bottom
+      let left
+
+      if (item.children) {
+        top = this.parse(item.children.top, node, 'top')
+        right = this.parse(item.children.right, node, 'right')
+        bottom = this.parse(item.children.bottom, node, 'bottom')
+        left = this.parse(item.children.left, node, 'left')
+      }
+
+      const nodeObject = {
+        node,
+        spaceWidth: 0,
+        spaceHeight: 0
+      }
+
+      if (left || right || top || bottom) {
+        Object.defineProperty(nodeObject, 'children', {
+          enumerable: true,
+          writable: true,
+          configurable: true,
+          value: {
+            top,
+            right,
+            bottom,
+            left
+          }
+        })
+      }
+
+      nodes.push(nodeObject)
+    }
+    return nodes
   }
 
   initPosition(animate: boolean) {
@@ -389,12 +417,11 @@ export class Mind {
     /**
      * 计算每个节点和其子节点所占空间大小
      *
-     * @param {any[]}   data children data.
+     * @param {TreeItem[]}   data children data.
      * @param {boolean} isHorizontal children orient.
      * @internal
      */
-    const boundingClientRect = (data: any[], isHorizontal: boolean): Space => {
-
+    const boundingClientRect = (data: TreeItem[], isHorizontal: boolean): Space => {
       let width = 0
       let height = 0
 
@@ -410,8 +437,6 @@ export class Mind {
           const bottom = boundingClientRect(item.children.bottom, true)
           const left = boundingClientRect(item.children.left, false)
 
-          // console.log(item.node.name, left, top, bottom, right);
-
           item.spaceWidth += Math.max(left.width + right.width, top.width - spaceWidth, bottom.width - spaceWidth)
           item.spaceHeight += Math.max(top.height + bottom.height, left.height - spaceHeight, right.height - spaceHeight)
         }
@@ -426,6 +451,7 @@ export class Mind {
           height += item.spaceHeight
         }
       }
+
       return {
         width,
         height
@@ -447,7 +473,7 @@ export class Mind {
      * @param {boolean}   isHorizontal children orient.
      * @internal
      */
-    const setPosition = (data: any[], spaceX: number, spaceY: number, isHorizontal: boolean) => {
+    const setPosition = (data: TreeItem[], spaceX: number, spaceY: number, isHorizontal: boolean) => {
       let x = spaceX
       let y = spaceY
 
@@ -466,12 +492,11 @@ export class Mind {
         }
 
         if (item.children) {
-          const topSpaceWidth = item.children.top.reduce((a: number, b: any) => a + b.spaceWidth , 0)
-          const bottomSpaceWidth = item.children.bottom.reduce((a: number, b: any) => a + b.spaceWidth , 0)
-          const leftSpaceWidth = item.children.left.reduce((a: number, b: any) => Math.max(a, b.spaceWidth), 0)
-          // const rightSpaceWidth = item.children.right.reduce((a: number, b: any) => Math.max(a, b.spaceWidth), 0)
-          const leftSpaceHeight = item.children.left.reduce((a: number, b: any) => a + b.spaceHeight , 0)
-          const rightSpaceHeight = item.children.right.reduce((a: number, b: any) => a + b.spaceHeight , 0)
+          const topSpaceWidth = item.children.top.reduce((a: number, b: TreeItem) => a + b.spaceWidth , 0)
+          const bottomSpaceWidth = item.children.bottom.reduce((a: number, b: TreeItem) => a + b.spaceWidth , 0)
+          const leftSpaceWidth = item.children.left.reduce((a: number, b: TreeItem) => Math.max(a, b.spaceWidth), 0)
+          const leftSpaceHeight = item.children.left.reduce((a: number, b: TreeItem) => a + b.spaceHeight , 0)
+          const rightSpaceHeight = item.children.right.reduce((a: number, b: TreeItem) => a + b.spaceHeight , 0)
 
           if (leftSpaceWidth > 0 && isHorizontal) {
             nodeX = x + leftSpaceWidth + (spaceWidth / 2)
@@ -520,31 +545,30 @@ export class Mind {
 
     node.datahandle.children[orient].push(data)
 
-    this.initNode(this.updateData())
-    this.initPosition(false)
-    localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
+    this.resetAndCache()
   }
 
   editNode(node: Node, title: string) {
     node.datahandle.title = title
-    this.initNode(this.updateData())
-    this.initPosition(false)
-    localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
+    this.resetAndCache()
   }
 
   setColor(node: Node, color: string) {
     node.datahandle.color = color
+    this.resetAndCache()
+  }
+
+  deleteNode(node: Node) {
+    node.datahandle.deleted = true
+    this.resetAndCache()
+  }
+
+  resetAndCache() {
     this.initNode(this.updateData())
     this.initPosition(false)
     localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
   }
 
-  deleteNode(node: Node) {
-    node.datahandle.deleted = true
-    this.initNode(this.updateData())
-    this.initPosition(false)
-    localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
-  }
 
   clearNode() {
     const isClear = window.confirm('你确定要清除已缓存的节点吗？')
@@ -627,12 +651,6 @@ export class Mind {
     }
   }
 
-  resetNode() {
-    this.initNode(this.updateData())
-    this.initPosition(false)
-    localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
-  }
-
   render() {
     const scene = this.stage2d.getScene()
     scene.initContext()
@@ -667,7 +685,7 @@ export class Mind {
     })
     context.moveTo(0 , 0)
     context.closePath()
-    context.strokeStyle = '#999'
+    context.strokeStyle = '#7396bf'
     // context.lineWidth = 1
 
     context.stroke()

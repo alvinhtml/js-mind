@@ -48,9 +48,9 @@ export default class Node {
 
   customPosition: null | number[] = null
 
-  width: number = 80
+  width: number = 100
 
-  height: number = 32
+  height: number = 38
 
   name: string = ''
 

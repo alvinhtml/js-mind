@@ -6,36 +6,36 @@
   .adder-handle {
     display: block;
     position: absolute;
-    width: 5px;
-    height: 5px;
+    width: 7px;
+    height: 7px;
     border-radius: 5px;
     border: 1px solid #aaa;
-    background-color: #fff;
+    background-color: #fdda31;
     cursor: pointer;
 
     &.handle-left {
-      left: -4px;
+      left: -5px;
       top: 50%;
-      margin-top: -4px;
+      margin-top: -5px;
     }
     &.handle-top {
-      top: -4px;
+      top: -5px;
       left: 50%;
-      margin-left: -4px;
+      margin-left: -5px;
     }
     &.handle-right {
-      right: -4px;
+      right: -5px;
       top: 50%;
-      margin-top: -4px;
+      margin-top: -5px;
     }
     &.handle-bottom {
-      bottom: -4px;
+      bottom: -5px;
       left: 50%;
-      margin-left: -4px;
+      margin-left: -5px;
     }
 
     &:hover::after {
-      content: attr(title);
+      content: attr(data-title);
       position: absolute;
       top: 110%;
       left: 0;
@@ -126,8 +126,7 @@
 
 .toolbar {
   position: fixed;
-  left: 0;
-  right: 0;
+  left: 50%;
   top: 0;
   display: flex;
   justify-content: center;
@@ -198,8 +197,12 @@
       &.tool-item .help-info {
         display: none;
         line-height: 1.5;
-        padding: 0.5em 1em;
+        padding: 1em !important;
         text-align: left;
+
+        dt {
+          font-weight: bold;
+        }
       }
 
       &.opened {
