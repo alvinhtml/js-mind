@@ -3,6 +3,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
+  mode: 'development',
   entry: {
     index: ['./node_modules/hidpi-canvas/dist/hidpi-canvas.min.js', './app/index.ts'],
     mind: './app/example/mind.ts',
@@ -57,6 +58,11 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './app/index.html',
+      chunks: ['index'],
+      filename: './index.html'
+    }),
+    new HtmlWebpackPlugin({
+      template: './app/index.html',
       chunks: ['index', 'mind'],
       filename: './example/mind.html'
     }),
@@ -67,16 +73,16 @@ module.exports = {
     })
   ],
   devServer: {
-    port: 8080,
-    progress: true,
-    contentBase: './build',
-    open: true,
-    //hot: true,
-    proxy: {
-      '/mui/src/css': {
-        target: 'http://project.xuehtml.com',
-        changeOrigin: true
-      }
+    port: 8086,
+    client: {
+      progress: true,
     },
+    onBeforeSetupMiddleware: function(devServer) {
+      devServer.app.get('/', function (req, res) {
+        res.redirect('example/mind.html')
+      });
+    },
+    open: true,
+    hot: true
   }
 }

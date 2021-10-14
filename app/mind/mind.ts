@@ -133,14 +133,11 @@ export class Mind {
       nodeHeight: option.nodeHeight || 38
     }
 
-    if (this.option.type === 'mind') {
-      this.initToolbar()
-    }
   }
 
   init(data: any[], option?: Partial<Option>) {
-
     this.initOption(option || {})
+    this.initToolbar()
     this.initAdder()
 
     // 应用缓存
@@ -200,6 +197,16 @@ export class Mind {
       }
       lastX = e.mouseX
       lastY = e.mouseY
+    })
+
+    this.stage2d.addEventListener('mousewheel', (e: any) => {
+      if (this.selected) {
+        this.selected = null
+        if (this.toolbar) {
+          this.toolbar.disableDeleteNode()
+        }
+        this.adder.hide()
+      }
     })
 
     this.render()
@@ -290,16 +297,11 @@ export class Mind {
       }
     })
 
-    this.stage2d.addEventListener('mousewheel', (e: any) => {
-      toolbar.setZoomText(Math.round(e.target.scale * 100))
-    })
-
     toolbar.setZoomText(Math.round(this.stage2d.scale * 100))
 
     // 修改颜色
     toolbar.onFill((color: string) => {
       if (this.selected) {
-        console.log("this.selected, color", this.selected, color);
         this.setColor(this.selected, color)
       }
     })
@@ -326,6 +328,7 @@ export class Mind {
       case 'circle':
         node = new Circle()
         node.width = item.width ? item.width : this.option.nodeWidth * .8
+        node.height = item.width ? item.width : this.option.nodeWidth * .8
         break
       case 'diamond':
         node = new Diamond()
@@ -468,8 +471,6 @@ export class Mind {
           item.spaceHeight += Math.max(top.height + bottom.height, left.height - spaceHeight, right.height - spaceHeight)
         }
 
-        console.log(item.node.name, item, isHorizontal);
-
         if (isHorizontal) {
           width += item.spaceWidth
           height = Math.max(item.spaceHeight, height)
@@ -601,7 +602,6 @@ export class Mind {
     this.selected = null
     this.toolbar.disableDeleteNode()
     this.adder.hide()
-    console.log("this.option", this.option);
     this.initNode(this.updateData())
     this.initPosition(false)
     localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
@@ -904,8 +904,6 @@ export class Mind {
 
       return arr
     }
-
-    console.log("this.data", this.data);
 
     this.data = update(this.data)
     return this.data

@@ -263,7 +263,7 @@ export default class Toolbar {
             <div>
               <p>
                 <label for="spaceWidth">左右间距： <input min="100" max="600" id="spaceWidth" step="10" value="${options.spaceWidth}" name="spaceWidth" type="range" /> <em id="spaceWidthText">${options.spaceWidth}</em></label>
-                <label for="spaceHeight">上下间距： <input  min="100" max="600" id="spaceHeight" step="10" value="${options.spaceHeight}" name="spaceHeight" type="range" /> <em id="spaceHeightText">${options.spaceHeight}</em></label>
+                <label for="spaceHeight">上下间距： <input  min="50" max="600" id="spaceHeight" step="10" value="${options.spaceHeight}" name="spaceHeight" type="range" /> <em id="spaceHeightText">${options.spaceHeight}</em></label>
               </p>
             </div>
           </div>

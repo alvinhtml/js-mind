@@ -257,8 +257,6 @@ export default class Stage {
   }
 
   stageScroll(e: WheelEvent) {
-    console.log('detail', e.detail, e);
-
     //判定鼠标指针在画布内
     if (
       Math.abs(e.pageX) > this.offsetX
@@ -270,23 +268,27 @@ export default class Stage {
       //阻止冒泡
       e.stopPropagation()
 
+      // 滚轮缩放画布
       //计算出缩放前的鼠标在场景中的 X、Y
-      const beforeX = ((e.pageX - this.offsetX) - this.translateX) / this.scale
-      const beforeY = ((e.pageY - this.offsetY) - this.translateY) / this.scale
+      // const beforeX = ((e.pageX - this.offsetX) - this.translateX) / this.scale
+      // const beforeY = ((e.pageY - this.offsetY) - this.translateY) / this.scale
 
+      // if (e.deltaY < 0) {
+      //   if (this.scale > .2) {
+      //     this.scale -= .05
+      //   }
+      // } else {
+      //   if (this.scale < 4) {
+      //     this.scale += .05
+      //   }
+      // }
+      //
+      // this.translateX = -beforeX * this.scale + (e.pageX - this.offsetX)
+      // this.translateY = -beforeY * this.scale + (e.pageY - this.offsetY)
 
-      if (e.deltaY < 0) {
-        if (this.scale > .2) {
-          this.scale -= .05
-        }
-      } else {
-        if (this.scale < 4) {
-          this.scale += .05
-        }
-      }
-
-      this.translateX = -beforeX * this.scale + (e.pageX - this.offsetX)
-      this.translateY = -beforeY * this.scale + (e.pageY - this.offsetY)
+      // 滚轮移动画布
+      this.translateX = this.translateX - e.deltaX
+      this.translateY = this.translateY - e.deltaY
     }
 
     this.events.forEach((e: Event2d) => {

@@ -65,7 +65,6 @@ export default class Text extends Node {
 
     if (!this.texts) {
       this.texts = this.breakStr(context)
-      console.log("texts", this.texts);
     }
 
     //绘制名称

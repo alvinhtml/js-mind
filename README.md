@@ -12,7 +12,7 @@ npm install
 - Launch dev server
 
 ```
-npm run dev
+npm run start
 ```
 
 - Build
