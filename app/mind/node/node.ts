@@ -71,6 +71,8 @@ export default class Node {
 
   links: Link[] = []
 
+  orient: string
+
   datahandle: any
 
   constructor() {

@@ -3,8 +3,6 @@ import Node from './node'
 //饼状图
 export default class Text extends Node {
 
-  radius: number = 6
-
   // 名称自行换行
   texts: null | string[] = null
 
@@ -63,6 +61,7 @@ export default class Text extends Node {
   paintTitle(context: CanvasRenderingContext2D) {
     context.save()
     context.textAlign = this.textAlign
+    context.font = '12px Tahoma, Geneva, sans-serif'
 
     if (!this.texts) {
       this.texts = this.breakStr(context)

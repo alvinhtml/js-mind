@@ -168,7 +168,9 @@ export class Mind {
         )
       } else {
         this.selected = null
-        this.toolbar.disableDeleteNode()
+        if (this.toolbar) {
+          this.toolbar.disableDeleteNode()
+        }
         this.adder.hide()
       }
     })
@@ -316,7 +318,7 @@ export class Mind {
     this.toolbar = toolbar
   }
 
-  createNode(type: string, item: Item): Node {
+  createNode(type: string, item: Item, orient: string): Node {
     let node
 
     // 根据类型创建 Node
@@ -335,7 +337,7 @@ export class Mind {
         if (item.children) {
           node.textAlign = 'center'
         } else {
-          // node.textAlign = orient === 'left' ? 'right' : 'left'
+          node.textAlign = orient === 'left' ? 'right' : 'left'
           node.width = 1
           node.height = 1
         }
@@ -348,6 +350,7 @@ export class Mind {
     }
 
     node.name = item.title
+    node.orient = orient
     node.stage2d = this.stage2d
 
     if (item.color) {
@@ -363,7 +366,7 @@ export class Mind {
     this.nodes = []
 
     // 解析 json data, 并创建对应的节点
-    this.nodeTree = this.parse(data, null, '');
+    this.nodeTree = this.parse(data, null, 'bottom');
   }
 
   parse(data: Item[] | undefined, parent: null | Node, orient: string): TreeItem[] {
@@ -385,7 +388,7 @@ export class Mind {
         type = item.type ? item.type : 'rect'
       }
 
-      const node = this.createNode(type, item)
+      const node = this.createNode(type, item, orient)
 
       this.nodes.push(node)
 
