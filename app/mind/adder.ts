@@ -40,6 +40,7 @@ export default class Adder {
 
     this.node.ondblclick = () => {
       this.editer.style.display = 'flex'
+      input.focus()
       this.editCallback(input)
     }
   }

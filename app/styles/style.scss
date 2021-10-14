@@ -1,3 +1,6 @@
+body {
+  font-family: -apple-system, sans-serif;
+}
 .node-adder {
   position: absolute;
   box-sizing: border-box;
@@ -37,8 +40,8 @@
     &:hover::after {
       content: attr(data-title);
       position: absolute;
-      top: 110%;
-      left: 0;
+      bottom: 10px;
+      left: -50px;
       background-color: rgba(0, 0, 0, 0.5);
       padding: .5em 1em;
       color: #fff;
@@ -206,7 +209,7 @@
       }
 
       &.opened {
-        .pick-color {
+        .pick-color, .setter {
           display: block;
         }
       }
@@ -217,7 +220,7 @@
       padding: 0 .5em;
     }
 
-    .pick-color {
+    .pick-color, .setter {
       display: none;
       position: absolute;
       top: 100%;
@@ -230,6 +233,21 @@
         border-radius: 4px;
         background-color: #fff;
         padding: 6px;
+        min-width: 240px;
+
+        p {
+          padding-left: 10px;
+          text-align: left;
+        }
+
+        label {
+          font-size: 12px;
+          white-space: nowrap;
+
+          input {
+            vertical-align: middle;
+          }
+        }
 
         span {
           display: block;

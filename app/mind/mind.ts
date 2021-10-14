@@ -41,6 +41,16 @@ interface TreeItem {
   }
 }
 
+interface Option {
+  type: 'tree' | 'mind'
+  orient: 'horizontal' | 'vertical'
+  spaceWidth: number
+  spaceHeight: number
+  lineSpace: number
+  nodeWidth: number
+  nodeHeight: number
+}
+
 export class Mind {
 
   id: string = 'mind'
@@ -71,7 +81,7 @@ export class Mind {
     height: 100
   }
 
-  option: {[key in string]: any}
+  option: Option
 
   constructor(element: HTMLDivElement | null) {
     if (element) {
@@ -112,27 +122,25 @@ export class Mind {
     return todata(data, orient)
   }
 
-  initOption(option?: any) {
-    const o = option || {}
+  initOption(option: Partial<Option>) {
     this.option = {
-      type: o.type || 'mind',
-      orient: o.orient || 'horizontal',
-      spaceWidth: o.spaceWidth || 150,
-      spaceHeight: o.spaceHeight || 120,
-      lineSpace: o.lineSpace || 3,
-      nodeWidth: o.nodeWidth || 100,
-      nodeHeight: o.nodeHeight || 38
+      type: option.type || 'mind',
+      orient: option.orient || 'horizontal',
+      spaceWidth: option.spaceWidth || 150,
+      spaceHeight: option.spaceHeight || 120,
+      lineSpace: option.lineSpace || 3,
+      nodeWidth: option.nodeWidth || 100,
+      nodeHeight: option.nodeHeight || 38
     }
 
     if (this.option.type === 'mind') {
       this.initToolbar()
     }
-
   }
 
-  init(data: any[], option?: any) {
+  init(data: any[], option?: Partial<Option>) {
 
-    this.initOption(option)
+    this.initOption(option || {})
     this.initAdder()
 
     // 应用缓存
@@ -196,12 +204,11 @@ export class Mind {
   }
 
   initToolbar() {
-    const toolbar = Toolbar.init(this.stage2d.container)
+    const toolbar = Toolbar.init(this.stage2d.container, this.option)
 
     // 绑定点击事件
     toolbar.onClick((e: ToolEvent) => {
       switch (e.type) {
-
         // 清除缓存节点
         case 'clear':
           this.clearNode()
@@ -234,6 +241,13 @@ export class Mind {
             this.adder.hide()
             this.toolbar.disableDeleteNode()
           }
+          break;
+
+        // 修改类型
+        case 'circle':
+        case 'rect':
+        case 'diamond':
+          this.changeNodeType(e.type)
           break;
 
         default:
@@ -287,6 +301,16 @@ export class Mind {
         this.setColor(this.selected, color)
       }
     })
+
+    // 改变间距
+    toolbar.onChange((option: {spaceWidth: number, spaceHeight: number}) => {
+      this.option.spaceWidth = option.spaceWidth
+      this.option.spaceHeight = option.spaceHeight
+
+      this.resetAndCache()
+    })
+
+
 
 
     this.toolbar = toolbar
@@ -553,6 +577,13 @@ export class Mind {
     this.resetAndCache()
   }
 
+  changeNodeType(type: string) {
+    if (this.selected) {
+      this.selected.datahandle.type = type
+      this.resetAndCache()
+    }
+  }
+
   setColor(node: Node, color: string) {
     node.datahandle.color = color
     this.resetAndCache()
@@ -564,6 +595,10 @@ export class Mind {
   }
 
   resetAndCache() {
+    this.selected = null
+    this.toolbar.disableDeleteNode()
+    this.adder.hide()
+    console.log("this.option", this.option);
     this.initNode(this.updateData())
     this.initPosition(false)
     localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
@@ -811,7 +846,8 @@ export class Mind {
       this.stage2d.drawing = false
       if (this.selected) {
         this.addNode(this.selected, orient, {
-          title: 'new node'
+          title: 'new node',
+          type: this.toolbar.nodeType
         })
       }
     })
