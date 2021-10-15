@@ -1,4 +1,6 @@
-import Mind from '../index';
+// import Mind from '../index';
+const Mind = (window as any).Mind.default
+export {} // 解决 TS2451: Cannot redeclare block-scoped variable
 
 const colors = ['#f2711c', '#2185d0', '#21ba45', '#b5cc18', '#00b5ad', '#fbbd08', '#6435c9', '#a333c8', '#e03997', '#a5673f']
 

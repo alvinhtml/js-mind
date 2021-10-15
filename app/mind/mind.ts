@@ -1,5 +1,6 @@
 import Stage from "./stage"
 import Adder from "./adder"
+import Undo from "./undo"
 import Toolbar, { ToolEvent } from "./toolbar"
 import { Text, Rect, Circle, Diamond } from "./node/index"
 
@@ -147,6 +148,7 @@ export class Mind {
       this.data = JSON.parse(dataCache)
     } else {
       this.data = this.parseData(data, this.option.orient === 'vertical' ? 'bottom' : 'left')
+      localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
     }
 
     // 创建 node 节点
@@ -250,6 +252,16 @@ export class Mind {
             this.adder.hide()
             this.toolbar.disableDeleteNode()
           }
+          break;
+
+        // 撤销
+        case 'undo':
+          this.undo()
+          break;
+
+        // 重做
+        case 'redo':
+          this.redo()
           break;
 
         // 修改类型
@@ -598,13 +610,41 @@ export class Mind {
     this.resetAndCache()
   }
 
+  undo() {
+    const chars = localStorage.getItem(`${this.id}-data`) || ''
+    const newChars = Undo.undo(chars)
+    const newData = JSON.parse(newChars)
+
+    this.data = newData
+    this.initNode(this.updateData())
+    this.initPosition(false)
+    localStorage.setItem(`${this.id}-data`, newChars)
+  }
+
+  redo() {
+    const chars = localStorage.getItem(`${this.id}-data`) || ''
+    const newChars = Undo.redo(chars)
+    const newData = JSON.parse(newChars)
+
+    this.data = newData
+    this.initNode(this.updateData())
+    this.initPosition(false)
+    localStorage.setItem(`${this.id}-data`, newChars)
+  }
+
   resetAndCache() {
     this.selected = null
     this.toolbar.disableDeleteNode()
     this.adder.hide()
     this.initNode(this.updateData())
     this.initPosition(false)
-    localStorage.setItem(`${this.id}-data`, JSON.stringify(this.data))
+
+    const oldChars = localStorage.getItem(`${this.id}-data`) || ''
+    const newChars = JSON.stringify(this.data)
+
+    Undo.recordDiff(oldChars, newChars)
+
+    localStorage.setItem(`${this.id}-data`, newChars)
   }
 
 

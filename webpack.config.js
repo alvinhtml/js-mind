@@ -12,7 +12,7 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
-    library: 'simple-chart', // 类库名称
+    library: 'Mind', // 类库名称
     libraryTarget: 'umd' // 类库打包方式
   },
   resolve: {
@@ -56,11 +56,6 @@ module.exports = {
     ignored: /node_modules|vendor|build|public|resources/
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: './app/index.html',
-      chunks: ['index'],
-      filename: './index.html'
-    }),
     new HtmlWebpackPlugin({
       template: './app/index.html',
       chunks: ['index', 'mind'],

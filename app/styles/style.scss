@@ -180,6 +180,20 @@ body {
         }
       }
 
+      &.item-btn {
+        &:active {
+          opacity: 0.8;
+        }
+        &:hover {
+          cursor: pointer;
+          svg {
+            path {
+              fill: #3982fc;
+            }
+          }
+        }
+      }
+
       &.tool-item:hover::after, &.tool-item:hover .help-info {
         position: absolute;
         display: inline-block;
