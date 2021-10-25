@@ -236,6 +236,7 @@ export default class Toolbar {
               <dd>3. 选中节点，然后点击控制句柄添加子节点；</dd>
               <dd>4. 选中节点，使用调色盘改变节点；</dd>
               <dd>5. 选中节点，按 delete 删除节点；</dd>
+              <dd>6. 使用鼠标滚轮或拖动空白处移动画布；</dd>
             </dl>
           </div>
         </li>

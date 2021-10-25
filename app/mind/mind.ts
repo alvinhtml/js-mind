@@ -1,6 +1,7 @@
 import Stage from "./stage"
 import Adder from "./adder"
 import Undo from "./undo"
+import Liner, { Position } from "./line"
 import Toolbar, { ToolEvent } from "./toolbar"
 import { Text, Rect, Circle, Diamond } from "./node/index"
 
@@ -50,6 +51,19 @@ interface Option {
   lineSpace: number
   nodeWidth: number
   nodeHeight: number
+}
+
+function reverseOrientation(orient: Position): Position {
+  switch (orient) {
+    case 'left':
+      return 'right'
+    case 'right':
+      return 'left'
+    case 'top':
+      return 'bottom'
+    default:
+      return 'top'
+  }
 }
 
 export class Mind {
@@ -384,7 +398,7 @@ export class Mind {
     this.nodeTree = this.parse(data, null, 'bottom');
   }
 
-  parse(data: Item[] | undefined, parent: null | Node, orient: string): TreeItem[] {
+  parse(data: Item[] | undefined, parent: null | Node, orient: Position): TreeItem[] {
 
     if (!data || data.length <= 0) {
       return []
@@ -411,6 +425,15 @@ export class Mind {
         node.links.push({
           orient: orient,
           node: parent
+        })
+
+        Liner.addLine({
+          node: parent,
+          startPosition: orient,
+          toNode: node,
+          endPosition: reverseOrientation(orient),
+          type: 'line',
+          arrow: true
         })
       }
 
@@ -749,26 +772,28 @@ export class Mind {
   }
 
   paint(context: CanvasRenderingContext2D) {
-    const paintLine = this.option.type === 'mind' ? this.paintBrokenLine : this.paintLine
+    // const paintLine = this.option.type === 'mind' ? this.paintBrokenLine : this.paintLine
 
     // 画节点之间的联线
-    context.beginPath()
-    context.moveTo(0 , 0)
-    this.nodes.forEach((node) => {
-      if (node.links.length > 0) {
-        node.links.forEach((link: Link) => {
-          paintLine.call(this, context, link.orient, link.node, node)
-        })
-      }
-    })
-    context.moveTo(0 , 0)
-    context.closePath()
-    context.strokeStyle = '#7396bf'
-    // context.lineWidth = 1
+    // context.beginPath()
+    // context.moveTo(0 , 0)
+    // this.nodes.forEach((node) => {
+    //   if (node.links.length > 0) {
+    //     node.links.forEach((link: Link) => {
+    //       paintLine.call(this, context, link.orient, link.node, node)
+    //     })
+    //   }
+    // })
+    //
+    // context.moveTo(0 , 0)
+    // context.closePath()
+    // context.strokeStyle = '#7396bf'
+    // // context.lineWidth = 1
+    //
+    // context.stroke()
+    // context.lineWidth = 2
 
-    context.stroke()
-
-    context.lineWidth = 2
+    Liner.paint(context)
 
     // 画节点
     this.nodes.forEach((node) => {
@@ -781,104 +806,6 @@ export class Mind {
     this.nodes.forEach((node) => {
       node.paintTitle(context)
     })
-  }
-
-  // 绘制三次贝赛尔曲线
-  paintLine(context: CanvasRenderingContext2D, orient: string, node: Node, toNode: Node) {
-    const space = this.option.lineSpace
-
-    if (orient === 'bottom') {
-      const x1 = node.x
-      const y1 = node.y + (node.height / 2) + space
-      const x2 = toNode.x
-      const y2 = toNode.y - (toNode.height / 2) - space
-
-      context.moveTo(x1, y1)
-      context.bezierCurveTo(x1, y1 + (y2 - y1) / 2, x2, y2 - (y2 - y1) / 2, x2, y2)
-    }
-
-    if (orient === 'top') {
-      const x1 = node.x
-      const y1 = node.y - (node.height / 2) - space
-      const x2 = toNode.x
-      const y2 = toNode.y + (toNode.height / 2) + space
-
-      context.moveTo(x1, y1)
-      context.bezierCurveTo(x1, y1 + (y2 - y1) / 2, x2, y2 - (y2 - y1) / 2, x2, y2)
-    }
-
-    if (orient === 'right') {
-      const x1 = node.x + (node.width / 2) + space
-      const y1 = node.y
-      const x2 = toNode.x - (toNode.width / 2) - space
-      const y2 = toNode.y
-
-      context.moveTo(x1, y1)
-      context.bezierCurveTo(x1 + (x2 - x1) / 2, y1, x2 - (x2 - x1) / 2, y2, x2, y2)
-    }
-
-    if (orient === 'left') {
-      const x1 = node.x - (node.width / 2) - space
-      const y1 = node.y
-      const x2 = toNode.x + (toNode.width / 2) + space
-      const y2 = toNode.y
-
-      context.moveTo(x1, y1)
-      context.bezierCurveTo(x1 + (x2 - x1) / 2, y1, x2 - (x2 - x1) / 2, y2, x2, y2)
-    }
-  }
-
-  // 绘制折线
-  paintBrokenLine(context: CanvasRenderingContext2D, orient: string, node: Node, toNode: Node) {
-    const space = this.option.lineSpace
-
-    if (orient === 'bottom') {
-      const x1 = node.x
-      const y1 = node.y + (node.height / 2) + space
-      const x2 = toNode.x
-      const y2 = toNode.y - (toNode.height / 2) - space
-
-      context.moveTo(x1, y1)
-      context.lineTo(x1, y1 + (y2 - y1) / 2)
-      context.lineTo(x2, y1 + (y2 - y1) / 2)
-      context.lineTo(x2, y2)
-    }
-
-    if (orient === 'top') {
-      const x1 = node.x
-      const y1 = node.y - (node.height / 2) - space
-      const x2 = toNode.x
-      const y2 = toNode.y + (toNode.height / 2) + space
-
-      context.moveTo(x1, y1)
-      context.lineTo(x1, y1 + (y2 - y1) / 2)
-      context.lineTo(x2, y1 + (y2 - y1) / 2)
-      context.lineTo(x2, y2)
-    }
-
-    if (orient === 'right') {
-      const x1 = node.x + (node.width / 2) + space
-      const y1 = node.y
-      const x2 = toNode.x - (toNode.width / 2) - space
-      const y2 = toNode.y
-
-      context.moveTo(x1, y1)
-      context.lineTo(x1 + (x2 - x1) / 2, y1)
-      context.lineTo(x1 + (x2 - x1) / 2, y2)
-      context.lineTo(x2, y2)
-    }
-
-    if (orient === 'left') {
-      const x1 = node.x - (node.width / 2) - space
-      const y1 = node.y
-      const x2 = toNode.x + (toNode.width / 2) + space
-      const y2 = toNode.y
-
-      context.moveTo(x1, y1)
-      context.lineTo(x1 + (x2 - x1) / 2, y1)
-      context.lineTo(x1 + (x2 - x1) / 2, y2)
-      context.lineTo(x2, y2)
-    }
   }
 
   initAdder() {
