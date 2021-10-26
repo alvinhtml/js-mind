@@ -36,7 +36,6 @@ export default class Scene {
 		this.context.fillStyle = '#ffffff'
 		this.context.lineWidth = 2
 		this.context.font = '14px Tahoma, Geneva, sans-serif'
-
   }
 
   paint(fn: Function) {
@@ -45,7 +44,7 @@ export default class Scene {
       if (this.stage2d.isVisibility) {
         const {width, height, translateX, translateY, scale} = this.stage2d
 
-        //清理画面
+        //清理画面，beginPath 使用不正确会导致 clearRect 无效
         this.context.clearRect(0, 0, width, height)
 
 

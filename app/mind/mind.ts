@@ -84,12 +84,16 @@ export class Mind {
 
   adder: Adder
   toolbar: Toolbar
+  liner: Liner
 
   // 当前选中的节点
   selected: Node | null
 
   // 当前拖动的节点
   dragged: Node | null
+
+  // 鼠标是否按下
+  isMousedown: boolean
 
   rect: Space = {
     width: 100,
@@ -102,6 +106,7 @@ export class Mind {
     if (element) {
       this.id = element.id || 'mind'
       this.stage2d = new Stage(element)
+      this.liner = new Liner(this.stage2d)
     }
   }
 
@@ -193,6 +198,7 @@ export class Mind {
 
     // 添 mousedown 事件，实现按下开始拖动节点
     this.stage2d.addEventListener('mousedown', (e: any) => {
+      this.isMousedown = true
       if (e.target) {
         this.dragged = e.target
         this.stage2d.container.style.cursor = 'grab'
@@ -202,6 +208,7 @@ export class Mind {
     })
 
     this.stage2d.addEventListener('mouseup', (e: any) => {
+      this.isMousedown = false
       this.dragged = null
       this.stage2d.container.style.cursor = 'auto'
     })
@@ -211,11 +218,15 @@ export class Mind {
         this.dragged.x = this.dragged.x + (e.mouseX - lastX) / this.stage2d.scale
         this.dragged.y = this.dragged.y + (e.mouseY - lastY) / this.stage2d.scale
       }
+      if (this.isMousedown) {
+        this.liner.clearCache()
+      }
       lastX = e.mouseX
       lastY = e.mouseY
     })
 
     this.stage2d.addEventListener('mousewheel', (e: any) => {
+      this.liner.clearCache()
       if (this.selected) {
         this.selected = null
         if (this.toolbar) {
@@ -393,9 +404,13 @@ export class Mind {
 
   initNode(data: Item[]) {
     this.nodes = []
+    this.liner.clearLine()
+    this.liner.clearCache()
 
     // 解析 json data, 并创建对应的节点
     this.nodeTree = this.parse(data, null, 'bottom');
+    console.log("this.liner.list", this.liner.list, this.data);
+    console.log("nodes", this.nodes);
   }
 
   parse(data: Item[] | undefined, parent: null | Node, orient: Position): TreeItem[] {
@@ -427,14 +442,12 @@ export class Mind {
           node: parent
         })
 
-        Liner.addLine({
-          node: parent,
-          startPosition: orient,
-          toNode: node,
-          endPosition: reverseOrientation(orient),
-          type: 'line',
-          arrow: true
-        })
+        console.log(orient, reverseOrientation(orient));
+
+        const line = this.liner.addLine(parent, orient, node, reverseOrientation(orient))
+
+        line.type = 'line'
+        line.arrow = true
       }
 
       let top
@@ -793,7 +806,7 @@ export class Mind {
     // context.stroke()
     // context.lineWidth = 2
 
-    Liner.paint(context)
+    this.liner.paint(context)
 
     // 画节点
     this.nodes.forEach((node) => {
