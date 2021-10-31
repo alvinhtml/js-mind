@@ -209,7 +209,12 @@ export class Mind {
 
     this.stage2d.addEventListener('mouseup', (e: any) => {
       this.isMousedown = false
-      this.dragged = null
+      if (this.dragged) {
+        this.dragged.datahandle.x = this.dragged.x
+        this.dragged.datahandle.y = this.dragged.y
+        this.resetAndCache()
+        this.dragged = null
+      }
       this.stage2d.container.style.cursor = 'auto'
     })
 
@@ -411,6 +416,7 @@ export class Mind {
     this.nodeTree = this.parse(data, null, 'bottom');
     console.log("this.liner.list", this.liner.list, this.data);
     console.log("nodes", this.nodes);
+    console.log("nodes", this.nodeTree);
   }
 
   parse(data: Item[] | undefined, parent: null | Node, orient: Position): TreeItem[] {
@@ -418,6 +424,9 @@ export class Mind {
     if (!data || data.length <= 0) {
       return []
     }
+
+    const lineType = this.option.type === 'mind' ? 'line' : 'bezier'
+    const arrow = this.option.type === 'mind' ? true : false
 
     const nodes = []
 
@@ -446,8 +455,8 @@ export class Mind {
 
         const line = this.liner.addLine(parent, orient, node, reverseOrientation(orient))
 
-        line.type = 'line'
-        line.arrow = true
+        line.type = lineType
+        line.arrow = arrow
       }
 
       let top
@@ -488,6 +497,53 @@ export class Mind {
   }
 
   initPosition(animate: boolean) {
+    switch (this.option.type) {
+      case 'tree':
+        this.initTreePosition(animate)
+        break;
+      default:
+        this.initMindPosition(animate)
+        break;
+    }
+  }
+
+  initMindPosition(animate: boolean) {
+    const setPosition = (data: TreeItem[], x: number, y: number) => {
+
+      let nodeX = x
+      let nodeY = y
+
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i]
+
+        if (item.node && item.node.datahandle.x) {
+          nodeX = item.node.datahandle.x
+          nodeY = item.node.datahandle.y
+        }
+
+        if (item.children) {
+          setPosition(item.children.top, nodeX, nodeY - this.option.spaceHeight)
+          setPosition(item.children.right, nodeX + this.option.spaceWidth, nodeY)
+          setPosition(item.children.bottom, nodeX, nodeY + this.option.spaceHeight)
+          setPosition(item.children.left, nodeX - this.option.spaceWidth, nodeY)
+        }
+
+        if (animate) {
+          item.node.animate({
+            x: nodeX,
+            y: nodeY
+          })
+        } else {
+          item.node.x = nodeX
+          item.node.y = nodeY
+        }
+      }
+    }
+
+    setPosition(this.nodeTree, 0, 0)
+  }
+
+  initTreePosition(animate: boolean) {
     console.time('init position time')
     const spaceWidth = this.option.spaceWidth
     const spaceHeight = this.option.spaceHeight
@@ -671,7 +727,7 @@ export class Mind {
   resetAndCache() {
     this.selected = null
     this.toolbar.disableDeleteNode()
-    this.adder.hide()
+    // this.adder.hide()
     this.initNode(this.updateData())
     this.initPosition(false)
 
@@ -780,7 +836,9 @@ export class Mind {
     this.initPosition(true)
 
     scene.paint(() => {
+      // console.time('Keyframe:')
       this.paint(scene.context)
+      // console.timeEnd('Keyframe:')
     })
   }
 

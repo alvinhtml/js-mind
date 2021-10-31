@@ -117,7 +117,6 @@ export default class Liner {
   }
 
   paint(context: CanvasRenderingContext2D) {
-    console.log("cached", this.cached);
     // 当有缓存的时候，使用缓存
     if (this.cached) {
       const pixelRatio = this.stage2d.pixelRatio
@@ -329,7 +328,6 @@ export default class Liner {
   }
 
   clearCache() {
-    console.log("===");
     this.cached = false
     window.clearTimeout(timer)
     // 400 ms 后使缓存画布

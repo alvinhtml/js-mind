@@ -19,60 +19,60 @@ document.body.appendChild(myMind);
 
 const mind = new Mind(myMind);
 
-// let nodes = [{
-//   title: '开始',
-//   type: 'circle',
-//   color: '#21ba45',
-//   children: {
-//     bottom: [{
-//       title: '等待接收数据',
-//       children: {
-//         bottom: [{
-//           title: 'N=0?',
-//           type: 'diamond',
-//           color: '#f2711c',
-//           children: {
-//             bottom: [{
-//               title: '接收标志信息',
-//               children: {
-//                 bottom: [{
-//                   title: 'N=1',
-//                   type: 'diamond',
-//                   color: '#f2711c',
-//                   children: {
-//                     bottom: [{
-//                       title: '显示烟雾',
-//                     }]
-//                   }
-//                 }]
-//               }
-//             }],
-//             right: [{
-//               title: '接收浓度值',
-//               children: {
-//                 bottom: [{
-//                   title: 'N=0',
-//                   type: 'diamond',
-//                   color: '#f2711c',
-//                   children: {
-//                     bottom: [{
-//                       title: '显示一氧化碳',
-//                     }]
-//                   }
-//                 }]
-//               }
-//             }]
-//           }
-//         }]
-//       }
-//     }]
-//   }
-// }]
-
 let nodes = [{
-  title: 'root',
-  type: 'circle'
-}];
+  title: '开始',
+  type: 'circle',
+  color: '#21ba45',
+  children: {
+    bottom: [{
+      title: '等待接收数据',
+      children: {
+        bottom: [{
+          title: 'N=0?',
+          type: 'diamond',
+          color: '#f2711c',
+          children: {
+            bottom: [{
+              title: '接收标志信息',
+              children: {
+                bottom: [{
+                  title: 'N=1',
+                  type: 'diamond',
+                  color: '#f2711c',
+                  children: {
+                    bottom: [{
+                      title: '显示烟雾',
+                    }]
+                  }
+                }]
+              }
+            }],
+            right: [{
+              title: '接收浓度值',
+              children: {
+                bottom: [{
+                  title: 'N=0',
+                  type: 'diamond',
+                  color: '#f2711c',
+                  children: {
+                    bottom: [{
+                      title: '显示一氧化碳',
+                    }]
+                  }
+                }]
+              }
+            }]
+          }
+        }]
+      }
+    }]
+  }
+}]
+
+// let nodes = [{
+//   title: 'root',
+//   type: 'circle'
+// }];
 
 mind.init(nodes);
 
